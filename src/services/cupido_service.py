@@ -79,17 +79,17 @@ class CupidoService:
 
         log_order_created(order["id"], plan_type.value, order["buyer_phone"])
 
-        # Send form link to buyer via WhatsApp
+        # Send form link to buyer via WhatsApp (2 messages: text + link)
         form_url = f"{settings.APP_BASE_URL}/form/{order['form_token']}"
-        message = (
-            f"💘 *Cupido - Mensagem Anonima*\n\n"
+
+        msg1 = (
+            f"*Cupido - Mensagem Anonima*\n\n"
             f"Oi, {buyer_name or 'voce'}! Seu pedido *{plan_config.label}* foi aprovado!\n\n"
-            f"Clique no link abaixo para preencher sua mensagem anonima:\n\n"
-            f"👉 {form_url}\n\n"
-            f"Apos preencher, o Cupido entrega a mensagem para a pessoa especial! 💌"
+            f"Clique no link abaixo para preencher sua mensagem anonima:"
         )
 
-        await uazapi_service.send_text(order["buyer_phone"], message)
+        await uazapi_service.send_text(order["buyer_phone"], msg1)
+        await uazapi_service.send_text(order["buyer_phone"], form_url)
 
         return order
 
