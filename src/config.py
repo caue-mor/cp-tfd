@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     # Fidelidade (Teste de Fidelidade)
     FIDELIDADE_UAZAPI_TOKEN: str = ""
     FIDELIDADE_CHECKOUT_URL: str = ""
+    FIDELIDADE_JWT_SECRET: str = ""
 
     # CORS
     ALLOWED_ORIGINS: str = "*"

@@ -15,7 +15,7 @@ from src.utils.validators import clean_phone_for_whatsapp
 
 logger = get_logger(__name__)
 
-JWT_SECRET = settings.SUPABASE_KEY
+JWT_SECRET = settings.FIDELIDADE_JWT_SECRET or settings.SUPABASE_KEY
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_DAYS = 7
 ACCESS_DURATION_HOURS = 48
