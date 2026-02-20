@@ -175,7 +175,7 @@ async def webhook_uazapi(request: Request):
         if not content:
             return JSONResponse({"status": "ignored", "reason": "no_content"}, status_code=200)
 
-        result = fidelidade_service.handle_inbound_message(sender_phone, content)
+        result = await fidelidade_service.handle_inbound_message(sender_phone, content)
 
         return JSONResponse({
             "status": "ok" if result["success"] else "no_match",

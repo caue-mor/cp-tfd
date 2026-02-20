@@ -378,7 +378,7 @@ class FidelidadeService:
 
     # ── Inbound messages (from target) ─────────────────────────────
 
-    def handle_inbound_message(self, sender_phone: str, content: str) -> Dict[str, Any]:
+    async def handle_inbound_message(self, sender_phone: str, content: str) -> Dict[str, Any]:
         """Handle incoming message from target (alvo responding to the 'woman')."""
         try:
             sender_clean = clean_phone_for_whatsapp(sender_phone)
@@ -407,6 +407,9 @@ class FidelidadeService:
                 "content": content,
             }).execute()
 
+            # Notify the test owner via WhatsApp
+            await self._notify_owner(test, content)
+
             logger.info(f"Inbound message saved for test {test['id']}")
             return {"success": True, "test_id": test["id"]}
 
@@ -415,6 +418,39 @@ class FidelidadeService:
             return {"success": False, "error": "Erro interno"}
 
     # ── Helpers ─────────────────────────────────────────────────────
+
+    async def _notify_owner(self, test: Dict[str, Any], message_content: str) -> None:
+        """Send WhatsApp notification to test owner when target replies."""
+        try:
+            # Get owner user
+            user = self.get_user(test["user_id"])
+            if not user:
+                return
+
+            phone_alvo = test["target_phone"]
+            masked = phone_alvo[:4] + "****" + phone_alvo[-4:]
+
+            chat_url = f"{settings.APP_BASE_URL}/fidelidade/chat/{test['id']}"
+
+            # Preview of the message (first 50 chars)
+            preview = message_content[:50]
+            if len(message_content) > 50:
+                preview += "..."
+
+            notification = (
+                f"🔔 *Teste de Fidelidade*\n\n"
+                f"O numero {masked} respondeu!\n\n"
+                f"💬 _{preview}_\n\n"
+                f"Acesse o chat para ver:\n"
+                f"👉 {chat_url}"
+            )
+
+            # Send via Cupido number (main UAZAPI), not the "woman" number
+            await uazapi_service.send_text(user["telefone"], notification)
+            logger.info(f"Owner notified: {user['telefone'][:7]}...")
+
+        except Exception as e:
+            logger.error(f"Error notifying owner: {e}")
 
     def _expire_test(self, test_id: str) -> None:
         """Mark a test as expired."""
