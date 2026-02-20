@@ -80,7 +80,8 @@ class CupidoService:
         log_order_created(order["id"], plan_type.value, order["buyer_phone"])
 
         # Send form link to buyer via WhatsApp (2 messages: text + link)
-        form_url = f"{settings.APP_BASE_URL}/form/{order['form_token']}"
+        base = settings.APP_BASE_URL.strip().rstrip("/")
+        form_url = f"{base}/form/{order['form_token']}"
 
         msg1 = (
             f"*Cupido - Mensagem Anonima*\n\n"
