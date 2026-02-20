@@ -128,14 +128,19 @@ class StitchCupido {
             btnVideo.addEventListener('click', () => this.finishQuiz());
         }
 
-        // Botões de CTA dos planos
+        // Botões de CTA dos planos — redirecionar para checkout Lowify
+        const checkoutUrls = {
+            basico: 'https://pay.lowify.com.br/checkout?product_id=OaU4np',
+            com_audio: 'https://pay.lowify.com.br/checkout?product_id=040pTc',
+            multi: 'https://pay.lowify.com.br/checkout?product_id=klBGlQ',
+            premium: 'https://pay.lowify.com.br/checkout?product_id=5GRqwI',
+        };
         document.querySelectorAll('.price-cta').forEach(btn => {
             btn.addEventListener('click', () => {
-                const note = document.querySelector('.pricing-whatsapp-note');
-                if (note) {
-                    note.style.background = 'rgba(34,197,94,0.25)';
-                    note.style.borderColor = 'rgba(34,197,94,0.5)';
-                    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const plan = btn.dataset.plan;
+                const url = checkoutUrls[plan];
+                if (url) {
+                    window.open(url, '_blank');
                 }
             });
         });
