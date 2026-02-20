@@ -61,10 +61,10 @@ PLANS: dict[PlanType, PlanConfig] = {
 # Mapeamento Lowify product_id -> PlanType
 # Atualizar com os IDs reais dos produtos na Lowify
 PRODUCT_ID_MAP: dict[str, PlanType] = {
-    # "lowify_product_id_basico": PlanType.BASICO,
-    # "lowify_product_id_audio": PlanType.COM_AUDIO,
-    # "lowify_product_id_multi": PlanType.MULTI_MENSAGEM,
-    # "lowify_product_id_premium": PlanType.PREMIUM_HISTORIA,
+    "OaU4np": PlanType.BASICO,
+    "040pTc": PlanType.COM_AUDIO,
+    "klBGlQ": PlanType.MULTI_MENSAGEM,
+    "5GRqwI": PlanType.PREMIUM_HISTORIA,
 }
 
 # Mapeamento por nome do produto (fallback)
