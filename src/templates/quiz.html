@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stitch Cupido Surpresa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/quiz.css">
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="quiz-container">
+        <!-- Header -->
+        <div class="quiz-header">
+            <div class="stitch-avatar">
+                <img src="/static/img/stitch.png" alt="Stitch" onerror="this.parentElement.textContent='💙'">
+            </div>
+            <h1 class="quiz-title">Stitch Cupido Surpresa</h1>
+            <p class="quiz-subtitle">Envie uma mensagem anônima para quem você ama!</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%;"></div>
+        </div>
+
+        <!-- Narrative Bubble -->
+        <div class="narrative-bubble" id="narrativeBubble">
+            <div class="narrative-avatar">💙</div>
+            <div class="narrative-text" id="narrativeText">Me conta mais sobre você que eu vou te ajudar a criar a mensagem perfeita!</div>
+        </div>
+
+        <!-- Content -->
+        <div class="quiz-content">
+            <!-- Pergunta 1 - Situação -->
+            <div class="question-card active" data-question="1">
+                <h2 class="question-text">Qual é a sua situação?</h2>
+                <div class="options-list">
+                    <button class="option-button" data-value="solteiro">
+                        <span class="option-emoji">💔</span>
+                        <span class="option-text">Solteiro(a) e interessado(a) em alguém</span>
+                    </button>
+                    <button class="option-button" data-value="relacionamento">
+                        <span class="option-emoji">💕</span>
+                        <span class="option-text">Em um relacionamento</span>
+                    </button>
+                    <button class="option-button" data-value="complicado">
+                        <span class="option-emoji">😔</span>
+                        <span class="option-text">É complicado...</span>
+                    </button>
+                    <button class="option-button" data-value="amizade">
+                        <span class="option-emoji">🤝</span>
+                        <span class="option-text">Somos amigos, mas quero algo mais</span>
+                    </button>
+                </div>
+                <button class="next-button" id="nextBtn1">Próxima</button>
+            </div>
+
+            <!-- Pergunta 2 - Nome -->
+            <div class="question-card" data-question="2">
+                <h2 class="question-text">Qual é o seu nome?</h2>
+                <div class="input-group">
+                    <label class="input-label" for="userName">✨ Seu primeiro nome:</label>
+                    <input type="text" id="userName" class="input-field" placeholder="Digite seu nome..." maxlength="50" autocomplete="given-name">
+                    <div class="input-hint">💝 Usaremos para personalizar sua experiência</div>
+                </div>
+                <button class="next-button" id="nextBtn2">Próxima</button>
+            </div>
+
+            <!-- Pergunta 3 - WhatsApp -->
+            <div class="question-card" data-question="3">
+                <h2 class="question-text">Qual é o seu WhatsApp?</h2>
+                <div class="input-group">
+                    <label class="input-label" for="userPhone">📱 Seu número:</label>
+                    <input type="tel" id="userPhone" class="input-field" placeholder="(11) 99999-9999" maxlength="20" autocomplete="tel">
+                    <div class="input-hint">🔒 Usado apenas para entrega. Não enviamos spam!</div>
+                </div>
+                <button class="next-button" id="nextBtn3">Próxima</button>
+            </div>
+
+            <!-- Pergunta 4 - Objetivo -->
+            <div class="question-card" data-question="4">
+                <h2 class="question-text">Qual é o seu objetivo?</h2>
+                <div class="options-list">
+                    <button class="option-button" data-value="conquistar">
+                        <span class="option-emoji">💘</span>
+                        <span class="option-text">Conquistar o coração de alguém</span>
+                    </button>
+                    <button class="option-button" data-value="reconquistar">
+                        <span class="option-emoji">🔄</span>
+                        <span class="option-text">Reconquistar quem eu perdi</span>
+                    </button>
+                    <button class="option-button" data-value="pedir_desculpas">
+                        <span class="option-emoji">🙏</span>
+                        <span class="option-text">Pedir desculpas</span>
+                    </button>
+                    <button class="option-button" data-value="surpreender">
+                        <span class="option-emoji">🎉</span>
+                        <span class="option-text">Surpreender alguém especial</span>
+                    </button>
+                </div>
+                <button class="next-button" id="nextBtn4">Ver meu resultado</button>
+            </div>
+
+            <!-- Vídeo + Depoimento -->
+            <div class="video-section" id="videoSection">
+                <h2 class="video-section-title">🎬 Veja como funciona na prática!</h2>
+                <p class="video-section-subtitle">O Stitch entrega sua mensagem de um jeito único e inesquecível:</p>
+
+                <div class="video-player-container">
+                    <video class="video-player" controls playsinline preload="metadata">
+                        <source src="{{ video_url }}" type="video/mp4">
+                        Seu navegador não suporta vídeo.
+                    </video>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <img src="/static/img/testimonial.jpg" alt="Clara" class="testimonial-avatar" onerror="this.style.display='none'">
+                        <div class="testimonial-info">
+                            <h4>Clara</h4>
+                            <p>São Paulo, SP</p>
+                            <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-text">"Cara, quando recebi eu não entendi nada no começo kkk. Só entendi que era meu namorado depois que ele me viu morrendo de rir e começou a rir junto. Foi muito engraçado, a voz do Stitch é perfeita mesmo!"</p>
+                </div>
+
+                <button class="next-button enabled" id="btnContinueVideo">Ver meus planos</button>
+            </div>
+
+            <!-- Resultado -->
+            <div class="result-card" id="resultCard">
+                <div class="result-emoji" id="resultEmoji">💝</div>
+                <h2 class="result-title" id="resultTitle">Preparando...</h2>
+                <p class="result-subtitle" id="resultSubtitle"></p>
+
+                <div class="result-features">
+                    <div class="result-feature">
+                        <span class="rf-icon">🎙️</span>
+                        <span class="rf-text">Áudio com a voz do Stitch</span>
+                    </div>
+                    <div class="result-feature">
+                        <span class="rf-icon">🎭</span>
+                        <span class="rf-text">100% anônimo (ou se revele!)</span>
+                    </div>
+                    <div class="result-feature">
+                        <span class="rf-icon">📱</span>
+                        <span class="rf-text">Entrega direto no WhatsApp</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planos -->
+            <div class="pricing-section" id="pricingSection">
+                <h2 class="pricing-title">Escolha o plano ideal pra você</h2>
+                <p class="pricing-subtitle">Cada plano entrega algo único. Qual combina com você?</p>
+
+                <!-- Básico -->
+                <div class="price-card">
+                    <div class="price-card-header">
+                        <div class="price-emoji">📝</div>
+                        <div>
+                            <h3 class="price-plan-name">Básico</h3>
+                            <div class="price-tag">R$ <span class="price-value">6</span></div>
+                        </div>
+                    </div>
+                    <p class="price-description">Mensagem de texto anônima entregue no WhatsApp da pessoa.</p>
+                    <ul class="price-features">
+                        <li>✅ 1 mensagem de texto</li>
+                        <li>✅ Entrega anônima</li>
+                        <li>✅ Você escolhe o que escrever</li>
+                    </ul>
+                    <button class="price-cta" data-plan="basico">Quero esse plano</button>
+                </div>
+
+                <!-- Com Áudio -->
+                <div class="price-card">
+                    <div class="price-card-header">
+                        <div class="price-emoji">🎙️</div>
+                        <div>
+                            <h3 class="price-plan-name">Com Áudio</h3>
+                            <div class="price-tag">R$ <span class="price-value">14</span></div>
+                        </div>
+                    </div>
+                    <p class="price-description">Texto + áudio com a voz do Stitch falando sua mensagem!</p>
+                    <ul class="price-features">
+                        <li>✅ 1 mensagem de texto</li>
+                        <li>✅ Áudio com voz do Stitch</li>
+                        <li>✅ Entrega anônima</li>
+                        <li>✅ Super divertido e único</li>
+                    </ul>
+                    <button class="price-cta" data-plan="com_audio">Quero esse plano</button>
+                </div>
+
+                <!-- Multi -->
+                <div class="price-card popular">
+                    <div class="popular-badge">🔥 Mais escolhido</div>
+                    <div class="price-card-header">
+                        <div class="price-emoji">💬</div>
+                        <div>
+                            <h3 class="price-plan-name">Multi</h3>
+                            <div class="price-tag">R$ <span class="price-value">15</span></div>
+                        </div>
+                    </div>
+                    <p class="price-description">5 mensagens com texto e áudio! Crie uma sequência de emoções.</p>
+                    <ul class="price-features">
+                        <li>✅ 5 mensagens de texto</li>
+                        <li>✅ Áudio com voz do Stitch</li>
+                        <li>✅ Entrega anônima</li>
+                        <li>✅ Sequência de mensagens</li>
+                        <li>✅ Melhor custo-benefício</li>
+                    </ul>
+                    <button class="price-cta cta-popular" data-plan="multi">Quero esse plano</button>
+                </div>
+
+                <!-- Premium -->
+                <div class="price-card premium">
+                    <div class="premium-badge">⭐ Experiência completa</div>
+                    <div class="price-card-header">
+                        <div class="price-emoji">🎬</div>
+                        <div>
+                            <h3 class="price-plan-name">Premium</h3>
+                            <div class="price-tag">R$ <span class="price-value">25</span></div>
+                        </div>
+                    </div>
+                    <p class="price-description">Apresentação com fotos e música. Uma história visual inesquecível!</p>
+                    <ul class="price-features">
+                        <li>✅ Slideshow com suas fotos</li>
+                        <li>✅ Música de fundo</li>
+                        <li>✅ Áudio com voz do Stitch</li>
+                        <li>✅ Entrega anônima</li>
+                        <li>✅ O mais emocionante de todos</li>
+                    </ul>
+                    <button class="price-cta cta-premium" data-plan="premium">Quero esse plano</button>
+                </div>
+
+                <div class="pricing-whatsapp-note">
+                    <p>📲 Já enviamos uma mensagem no seu WhatsApp!</p>
+                    <p>Responda lá para escolher o plano e começar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = '{{ supabase_url }}';
+        const SUPABASE_KEY = '{{ supabase_key }}';
+    </script>
+    <script src="/static/js/quiz.js"></script>
+</body>
+</html>

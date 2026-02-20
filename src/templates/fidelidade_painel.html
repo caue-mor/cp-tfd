@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Teste de Fidelidade</title>
+    <link rel="stylesheet" href="/static/css/fidelidade.css">
+</head>
+<body>
+    <div class="painel-container">
+        <!-- Header -->
+        <div class="painel-header">
+            <h1>🔍 Teste de Fidelidade</h1>
+            <button class="btn btn-sm btn-secondary" id="logout-btn">Sair</button>
+        </div>
+
+        <!-- New Test Form -->
+        <div class="card" id="new-test-card">
+            <h2>Novo Teste</h2>
+            <form id="new-test-form">
+                <div class="form-group">
+                    <label for="target-phone">Numero do alvo (WhatsApp)</label>
+                    <input type="tel" id="target-phone" placeholder="(11) 99999-9999" required>
+                </div>
+                <div class="form-group">
+                    <label for="first-message">Mensagem de abordagem</label>
+                    <textarea id="first-message" rows="3" placeholder="Escreva a primeira mensagem que sera enviada..." required maxlength="500"></textarea>
+                    <span class="char-count"><span id="char-count">0</span>/500</span>
+                </div>
+                <button type="submit" class="btn btn-primary" id="create-test-btn">Enviar Teste</button>
+            </form>
+        </div>
+
+        <!-- Tests List -->
+        <div class="card">
+            <h2>Seus Testes</h2>
+            <div id="tests-list" class="tests-list">
+                <p class="empty-state">Carregando...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/fidelidade';
+        const token = localStorage.getItem('fidelidade_token');
+
+        if (!token) {
+            window.location.href = '/fidelidade';
+        }
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+        };
+
+        // Char counter
+        document.getElementById('first-message').addEventListener('input', (e) => {
+            document.getElementById('char-count').textContent = e.target.value.length;
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.removeItem('fidelidade_token');
+            window.location.href = '/fidelidade';
+        });
+
+        // Create test
+        document.getElementById('new-test-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('create-test-btn');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            try {
+                const res = await fetch(API_BASE + '/test', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        target_phone: document.getElementById('target-phone').value,
+                        first_message: document.getElementById('first-message').value,
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = '/fidelidade/chat/' + data.test_id;
+                } else {
+                    alert(data.error || 'Erro ao criar teste');
+                }
+            } catch (err) {
+                alert('Erro de conexao');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Enviar Teste';
+        });
+
+        // Load tests
+        async function loadTests() {
+            try {
+                const res = await fetch(API_BASE + '/tests', { headers });
+
+                if (res.status === 401) {
+                    localStorage.removeItem('fidelidade_token');
+                    window.location.href = '/fidelidade';
+                    return;
+                }
+
+                const data = await res.json();
+                const container = document.getElementById('tests-list');
+
+                if (!data.tests || data.tests.length === 0) {
+                    container.innerHTML = '<p class="empty-state">Nenhum teste ainda. Crie seu primeiro teste acima!</p>';
+                    return;
+                }
+
+                container.innerHTML = data.tests.map(test => {
+                    const statusClass = test.status === 'active' ? 'status-active' :
+                                       test.status === 'expired' ? 'status-expired' : 'status-pending';
+                    const statusLabel = test.status === 'active' ? 'Ativo' :
+                                       test.status === 'expired' ? 'Expirado' : 'Pendente';
+                    const phone = test.target_phone;
+                    const masked = phone.slice(0, 4) + '****' + phone.slice(-4);
+                    const date = new Date(test.created_at).toLocaleDateString('pt-BR');
+
+                    return `
+                        <div class="test-item" onclick="window.location.href='/fidelidade/chat/${test.id}'">
+                            <div class="test-info">
+                                <span class="test-phone">${masked}</span>
+                                <span class="test-date">${date}</span>
+                            </div>
+                            <div class="test-meta">
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                <span class="test-arrow">›</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                document.getElementById('tests-list').innerHTML = '<p class="empty-state">Erro ao carregar testes</p>';
+            }
+        }
+
+        loadTests();
+    </script>
+</body>
+</html>

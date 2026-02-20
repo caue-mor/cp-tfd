@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Cupido - Sua Mensagem Anonima{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="logo">💘</div>
+        <h1>Cupido</h1>
+        <p class="subtitle">{{ plan.label }}</p>
+        {% if order.buyer_name %}
+        <p class="greeting">Oi, {{ order.buyer_name }}!</p>
+        {% endif %}
+    </div>
+
+    {% if plan.has_presentation %}
+    {# Premium plan - image upload form #}
+    <form id="premium-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="recipient_phone">Telefone do destinatario</label>
+            <input type="tel" id="recipient_phone" name="recipient_phone"
+                   placeholder="(11) 99999-9999" required>
+        </div>
+
+        <div class="form-group">
+            <label for="title">Titulo da apresentacao</label>
+            <input type="text" id="title" name="title"
+                   value="Uma historia para voce" maxlength="100">
+        </div>
+
+        <div class="form-group">
+            <label for="sender_nickname">De quem? (anonimo)</label>
+            <input type="text" id="sender_nickname" name="sender_nickname"
+                   value="Alguem especial" maxlength="50">
+        </div>
+
+        <div class="form-group">
+            <label>Fotos (arraste ou clique)</label>
+            <div id="drop-zone" class="drop-zone">
+                <p>📸 Arraste suas fotos aqui ou clique para selecionar</p>
+                <input type="file" id="file-input" name="files" multiple accept="image/*" hidden>
+            </div>
+            <div id="preview-container" class="preview-container"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+            💘 Enviar Apresentacao
+        </button>
+    </form>
+    {% else %}
+    {# Standard plans - text form #}
+    <form id="message-form">
+        <div class="form-group">
+            <label for="recipient_phone">Telefone do destinatario</label>
+            <input type="tel" id="recipient_phone" name="recipient_phone"
+                   placeholder="(11) 99999-9999" required>
+        </div>
+
+        <div class="form-group">
+            <label for="message">Sua mensagem anonima</label>
+            <textarea id="message" name="message" rows="4"
+                      placeholder="Escreva aqui a mensagem que o Cupido vai entregar..."
+                      required maxlength="1000"></textarea>
+            <span class="char-count"><span id="char-count">0</span>/1000</span>
+        </div>
+
+        {% if plan.max_messages > 1 %}
+        <div id="extra-messages">
+            <p class="hint">Voce pode enviar ate {{ plan.max_messages }} mensagens!</p>
+            <div id="extra-fields"></div>
+            <button type="button" id="add-message-btn" class="btn btn-secondary">
+                + Adicionar mensagem
+            </button>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="sender_nickname">De quem? (anonimo)</label>
+            <input type="text" id="sender_nickname" name="sender_nickname"
+                   value="Alguem especial" maxlength="50">
+        </div>
+
+        {% if plan.has_audio %}
+        <div class="audio-info">
+            🔊 O Cupido tambem vai gerar um audio com sua mensagem!
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+            💘 Enviar Mensagem
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<input type="hidden" id="form-token" value="{{ token }}">
+<input type="hidden" id="max-messages" value="{{ plan.max_messages }}">
+<input type="hidden" id="is-premium" value="{{ 'true' if plan.has_presentation else 'false' }}">
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/form.js"></script>
+{% if plan.has_presentation %}
+<script src="/static/js/premium-upload.js"></script>
+{% endif %}
+{% endblock %}

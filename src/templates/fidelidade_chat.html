@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Teste de Fidelidade</title>
+    <link rel="stylesheet" href="/static/css/fidelidade.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <button class="back-btn" onclick="window.location.href='/fidelidade/painel'">&larr;</button>
+            <div class="chat-header-info">
+                <span class="chat-title">Teste de Fidelidade</span>
+                <span class="chat-status" id="chat-status">Carregando...</span>
+            </div>
+            <div class="chat-timer" id="chat-timer" style="display:none"></div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages" id="chat-messages">
+            <div class="loading-msg">Carregando mensagens...</div>
+        </div>
+
+        <!-- Blur Overlay (shown when not paid) -->
+        <div class="blur-overlay" id="blur-overlay" style="display:none">
+            <div class="blur-content">
+                <div class="lock-icon">🔒</div>
+                <h3>Mensagens Bloqueadas</h3>
+                <p>Desbloqueie para ver as respostas e conversar por 48h</p>
+                <a href="{{ checkout_url }}" class="btn btn-unlock" id="unlock-btn">
+                    Desbloquear por R$29,90
+                </a>
+            </div>
+        </div>
+
+        <!-- Input Area (hidden when locked) -->
+        <div class="chat-input-area" id="chat-input-area" style="display:none">
+            <form id="send-form">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem..." autocomplete="off">
+                <button type="submit" class="btn-send">➤</button>
+            </form>
+        </div>
+    </div>
+
+    <input type="hidden" id="test-id" value="{{ test_id }}">
+    <input type="hidden" id="checkout-url" value="{{ checkout_url }}">
+    <script src="/static/js/fidelidade_chat.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Nixpacks configuration for Railway
+# No special system dependencies needed for Cupido
+
+[phases.setup]
+aptPkgs = []

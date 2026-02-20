@@ -1,0 +1,448 @@
+/* Stitch Cupido Quiz v2 — Colorful + Narrative + Pricing */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3a5f 0%, #3b82f6 25%, #ec4899 75%, #be185d 100%);
+    min-height: 100vh;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* ── Container ─────────────────────────────────────────── */
+
+.quiz-container {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+
+.quiz-header {
+    text-align: center;
+    padding: 2rem 1rem 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+.stitch-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    margin: 0 auto 1rem;
+    border: 3px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    animation: float 3s ease-in-out infinite;
+    overflow: hidden; font-size: 2.5rem;
+}
+.stitch-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.quiz-title {
+    font-size: 1.5rem; font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 15px rgba(0,0,0,0.4);
+    color: #fff;
+}
+.quiz-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+}
+
+/* ── Progress Bar ──────────────────────────────────────── */
+
+.progress-bar {
+    background: rgba(255,255,255,0.2); height: 6px;
+    border-radius: 10px; margin: 0 1rem 1rem; overflow: hidden;
+}
+.progress-fill {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    height: 100%; border-radius: 10px; transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(34,197,94,0.5);
+}
+
+/* ── Narrative Bubble ──────────────────────────────────── */
+
+.narrative-bubble {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    margin: 0 1rem 1.5rem; padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 1.25rem; border-radius: 1.25rem 1.25rem 1.25rem 0.25rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: fadeIn 0.5s ease-out;
+    transition: all 0.4s ease;
+}
+.narrative-avatar {
+    font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;
+}
+.narrative-text {
+    font-size: 0.9rem; line-height: 1.5;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    font-weight: 500;
+}
+
+/* ── Quiz Content ──────────────────────────────────────── */
+
+.quiz-content {
+    flex: 1; padding: 0 1rem; display: flex; flex-direction: column;
+}
+
+/* ── Question Cards ────────────────────────────────────── */
+
+.question-card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(15px);
+    border-radius: 1.5rem; padding: 2rem 1.5rem; margin-bottom: 2rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    display: none; animation: slideIn 0.5s ease-out;
+}
+.question-card.active { display: block; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.question-text {
+    font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem;
+    line-height: 1.4; color: #fff;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+}
+.options-list { margin-bottom: 1.5rem; }
+
+/* ── Option Buttons ────────────────────────────────────── */
+
+.option-button {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 1rem; padding: 1rem 1.5rem;
+    color: #fff; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; text-align: left;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.option-button:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+.option-button.selected {
+    background: rgba(34,197,94,0.3);
+    border-color: #22c55e;
+    box-shadow: 0 0 20px rgba(34,197,94,0.3);
+}
+.option-emoji { font-size: 1.5rem; margin-right: 1rem; flex-shrink: 0; }
+.option-text { flex: 1; }
+
+/* ── Next Button ───────────────────────────────────────── */
+
+.next-button {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none; border-radius: 1rem; padding: 1rem 2rem;
+    color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(34,197,94,0.3);
+    opacity: 0.5; pointer-events: none;
+    text-transform: uppercase; letter-spacing: 0.5px; width: 100%;
+}
+.next-button.enabled { opacity: 1; pointer-events: auto; }
+.next-button:hover.enabled {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(34,197,94,0.4);
+}
+
+/* ── Input Fields ──────────────────────────────────────── */
+
+.input-group { margin-bottom: 1.5rem; }
+.input-label {
+    display: block; font-size: 0.9rem; font-weight: 600;
+    margin-bottom: 0.5rem; color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.input-field {
+    width: 100%; background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(255,255,255,0.3); border-radius: 1rem;
+    padding: 1rem 1.5rem; color: #1a1a2e; font-size: 1rem; font-weight: 500;
+    transition: all 0.3s ease;
+}
+.input-field::placeholder { color: rgba(0,0,0,0.4); }
+.input-field:focus {
+    outline: none; border-color: #22c55e; background: #fff;
+    box-shadow: 0 0 20px rgba(34,197,94,0.2);
+}
+.input-field.valid { border-color: #22c55e; box-shadow: 0 0 15px rgba(34,197,94,0.3); background: #fff; }
+.input-field.invalid { border-color: #ef4444; box-shadow: 0 0 15px rgba(239,68,68,0.3); background: #fff; }
+.input-hint {
+    font-size: 0.8rem; margin-top: 0.5rem;
+    color: rgba(255,255,255,0.75);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ── Video Section ─────────────────────────────────────── */
+
+.video-section {
+    display: none; animation: fadeIn 0.6s ease-out; text-align: center;
+    margin-bottom: 2rem;
+}
+.video-section.active { display: block; }
+
+.video-section-title {
+    font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;
+    color: #fbbf24; text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+.video-section-subtitle {
+    font-size: 0.9rem; color: rgba(255,255,255,0.9); margin-bottom: 1.5rem;
+    line-height: 1.5; text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.video-player-container {
+    position: relative; width: 100%; max-width: 300px; margin: 0 auto 1.5rem;
+    aspect-ratio: 9/16; border-radius: 1rem; overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3); background: rgba(0,0,0,0.2);
+}
+.video-player {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    border: none; border-radius: 1rem; object-fit: cover;
+}
+
+/* ── Testimonial ───────────────────────────────────────── */
+
+.testimonial-card {
+    background: rgba(255,255,255,0.12); border-radius: 1.25rem;
+    padding: 1.5rem; margin: 0 0 1.5rem;
+    border: 1px solid rgba(255,255,255,0.2); text-align: left;
+    backdrop-filter: blur(10px);
+}
+.testimonial-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.testimonial-avatar {
+    width: 55px; height: 55px; border-radius: 50%; object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+.testimonial-info h4 { font-weight: 700; color: #fff; margin-bottom: 0.15rem; }
+.testimonial-info p { font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-bottom: 0.15rem; }
+.testimonial-stars { color: #fbbf24; font-size: 0.85rem; }
+.testimonial-text {
+    font-style: italic; line-height: 1.6; font-size: 0.9rem;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* ── Result Card ───────────────────────────────────────── */
+
+.result-card {
+    text-align: center; padding: 2rem 1.5rem;
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(15px);
+    border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    margin-bottom: 2rem;
+    display: none; animation: fadeIn 0.6s ease-out;
+}
+.result-card.active { display: block; }
+
+.result-emoji {
+    font-size: 3.5rem; margin-bottom: 0.75rem;
+    animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+.result-title {
+    font-size: 1.3rem; font-weight: 700; color: #fbbf24;
+    margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+.result-subtitle {
+    font-size: 0.95rem; color: rgba(255,255,255,0.9);
+    line-height: 1.5; margin-bottom: 1.5rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.result-features {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    text-align: left;
+}
+.result-feature {
+    display: flex; align-items: center; gap: 0.75rem;
+    background: rgba(255,255,255,0.08); border-radius: 0.75rem;
+    padding: 0.6rem 1rem;
+}
+.rf-icon { font-size: 1.2rem; flex-shrink: 0; }
+.rf-text {
+    font-size: 0.85rem; font-weight: 500;
+    color: rgba(255,255,255,0.9);
+}
+
+/* ── Pricing Section ───────────────────────────────────── */
+
+.pricing-section {
+    text-align: center; padding: 0 0 3rem;
+    display: none; animation: fadeIn 0.6s ease-out;
+}
+.pricing-section.active { display: block; }
+
+.pricing-title {
+    font-size: 1.3rem; font-weight: 800; color: #fff;
+    margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+.pricing-subtitle {
+    font-size: 0.9rem; color: rgba(255,255,255,0.8);
+    margin-bottom: 1.5rem; text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* ── Price Cards (vertical stack) ──────────────────────── */
+
+.price-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 1.25rem; padding: 1.5rem;
+    text-align: left; margin-bottom: 1rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease; position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.price-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+}
+
+.price-card.popular {
+    border-color: #22c55e;
+    box-shadow: 0 8px 30px rgba(34,197,94,0.3);
+    background: #fff;
+}
+.price-card.premium {
+    border-color: #f59e0b;
+    box-shadow: 0 8px 30px rgba(245,158,11,0.25);
+    background: #fff;
+}
+
+.popular-badge, .premium-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    color: #fff; font-size: 0.75rem; font-weight: 700;
+    padding: 0.3rem 1rem; border-radius: 1rem;
+    text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.popular-badge { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.premium-badge { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+.price-card-header {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;
+}
+.price-emoji { font-size: 2.25rem; flex-shrink: 0; }
+.price-plan-name {
+    font-size: 1.1rem; font-weight: 800; color: #1a1a2e; margin-bottom: 0.15rem;
+}
+.price-tag {
+    font-size: 0.95rem; font-weight: 600; color: #555;
+}
+.price-value {
+    font-size: 1.6rem; font-weight: 900; color: #16a34a;
+}
+
+.price-description {
+    font-size: 0.85rem; color: #555; line-height: 1.5; margin-bottom: 0.75rem;
+}
+
+.price-features {
+    list-style: none; margin-bottom: 1rem; padding: 0;
+}
+.price-features li {
+    font-size: 0.8rem; color: #333; padding: 0.3rem 0;
+    line-height: 1.4;
+}
+
+.price-cta {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none; border-radius: 0.85rem; padding: 0.75rem 1.5rem;
+    color: #fff; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.3s ease; width: 100%;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+.price-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.4);
+}
+.price-cta.cta-popular {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+.price-cta.cta-popular:hover {
+    box-shadow: 0 6px 20px rgba(34,197,94,0.4);
+}
+.price-cta.cta-premium {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+.price-cta.cta-premium:hover {
+    box-shadow: 0 6px 20px rgba(245,158,11,0.4);
+}
+
+.pricing-whatsapp-note {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem; padding: 1.25rem;
+    margin-top: 1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.pricing-whatsapp-note p {
+    font-size: 0.9rem; color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    line-height: 1.5; margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+.pricing-whatsapp-note p:first-child {
+    font-size: 1rem; font-weight: 700;
+}
+.pricing-whatsapp-note p:last-child { margin-bottom: 0; font-weight: 400; }
+
+/* ── Particles ─────────────────────────────────────────── */
+
+.particles {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 1;
+}
+.particle {
+    position: absolute; background-color: rgba(255,255,255,0.3);
+    border-radius: 50%; pointer-events: none;
+    animation: particleFloat 8s linear infinite;
+}
+@keyframes particleFloat {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+}
+
+/* ── Mobile ────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+    .quiz-container { max-width: 100%; }
+    .question-card { margin: 0 0.25rem 1.5rem; padding: 1.5rem 1rem; }
+    .option-button { padding: 0.75rem 1rem; font-size: 0.9rem; }
+    .option-emoji { font-size: 1.25rem; margin-right: 0.75rem; }
+    .input-field { padding: 0.875rem 1.25rem; font-size: 0.95rem; }
+    .video-player-container { max-width: 250px; }
+    .testimonial-avatar { width: 45px; height: 45px; }
+    .price-card { padding: 1.25rem; }
+    .price-emoji { font-size: 1.75rem; }
+    .price-value { font-size: 1.4rem; }
+    .price-cta { padding: 0.65rem 1rem; font-size: 0.85rem; }
+    .narrative-bubble { margin: 0 0.5rem 1rem; padding: 0.75rem 1rem; }
+    .narrative-text { font-size: 0.85rem; }
+}
