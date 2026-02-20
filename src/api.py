@@ -9,7 +9,6 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.config import settings
-from src.services.redis_service import redis_service
 from src.services.supabase_service import supabase_service
 from src.utils.logger import get_logger
 
@@ -24,14 +23,9 @@ async def lifespan(app: FastAPI):
     # Connect Supabase
     supabase_service.connect()
 
-    # Connect Redis (optional)
-    await redis_service.connect()
-
     logger.info("Cupido API ready!")
     yield
 
-    # Shutdown
-    await redis_service.disconnect()
     logger.info("Cupido API stopped.")
 
 
@@ -82,19 +76,15 @@ async def liveness():
 
 @app.get("/ready")
 async def readiness():
-    checks = {"supabase": False, "redis": False}
+    checks = {"supabase": False}
 
-    # Check Supabase
     try:
         if supabase_service.client:
             checks["supabase"] = True
     except Exception:
         pass
 
-    # Check Redis
-    checks["redis"] = redis_service.available
-
-    all_ok = checks["supabase"]  # Redis is optional
+    all_ok = checks["supabase"]
     status_code = 200 if all_ok else 503
 
     return JSONResponse(

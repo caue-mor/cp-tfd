@@ -9,9 +9,6 @@ python-multipart==0.0.9
 # Database
 supabase==2.11.0
 
-# Cache (optional)
-redis==5.0.1
-
 # HTTP Client
 httpx>=0.26.0,<0.29.0
 

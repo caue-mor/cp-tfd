@@ -36,9 +36,6 @@ class Settings(BaseSettings):
     CHECKOUT_URL: str = "https://pay.stitchdoamor.shop/checkout-white-6829/?add-to-cart=6829"
     QUIZ_VIDEO_URL: str = "https://stitchdoamor.shop/wp-content/uploads/2025/05/AD-STITCH-CLARA.mp4"
 
-    # Redis (optional)
-    REDIS_URL: Optional[str] = None
-
     # Fidelidade (Teste de Fidelidade)
     FIDELIDADE_UAZAPI_TOKEN: str = ""
     FIDELIDADE_CHECKOUT_URL: str = ""
