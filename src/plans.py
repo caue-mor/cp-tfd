@@ -17,6 +17,7 @@ class PlanConfig:
     has_presentation: bool
     label: str
     price: int = 0
+    audio_char_limit: int = 0
 
 
 PLANS: dict[PlanType, PlanConfig] = {
@@ -37,6 +38,7 @@ PLANS: dict[PlanType, PlanConfig] = {
         has_presentation=False,
         label="Mensagem + Áudio",
         price=14,
+        audio_char_limit=300,
     ),
     PlanType.MULTI_MENSAGEM: PlanConfig(
         plan_type=PlanType.MULTI_MENSAGEM,
@@ -46,6 +48,7 @@ PLANS: dict[PlanType, PlanConfig] = {
         has_presentation=False,
         label="Múltiplas Mensagens",
         price=15,
+        audio_char_limit=150,
     ),
     PlanType.PREMIUM_HISTORIA: PlanConfig(
         plan_type=PlanType.PREMIUM_HISTORIA,
@@ -55,6 +58,7 @@ PLANS: dict[PlanType, PlanConfig] = {
         has_presentation=True,
         label="História Premium",
         price=25,
+        audio_char_limit=300,
     ),
 }
 

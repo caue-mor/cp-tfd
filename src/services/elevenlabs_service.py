@@ -56,17 +56,47 @@ class ElevenLabsService:
             logger.error(f"Error generating audio: {e}")
             return None
 
-    async def generate_and_upload(self, text: str, order_id: str) -> Optional[str]:
+    async def generate_and_upload(self, text: str, order_id: str, message_index: int = 0) -> Optional[str]:
         """Generate audio and upload to Supabase Storage. Returns public URL."""
         audio_bytes = await self.generate_audio(text)
         if not audio_bytes:
             return None
 
-        file_path = f"audio/{order_id}.mp3"
+        file_path = f"audio/{order_id}_{message_index}.mp3"
         public_url = supabase_service.upload_file(file_path, audio_bytes, "audio/mpeg")
 
         if public_url:
             logger.info(f"Audio uploaded for order {order_id}: {public_url}")
+
+        return public_url
+
+    async def generate_send_and_cleanup(
+        self, text: str, order_id: str, recipient_phone: str, message_index: int = 0
+    ) -> Optional[str]:
+        """Generate audio, upload, send via WhatsApp, then delete from storage."""
+        from src.services.uazapi_service import uazapi_service
+
+        audio_bytes = await self.generate_audio(text)
+        if not audio_bytes:
+            return None
+
+        file_path = f"audio/{order_id}_{message_index}.mp3"
+        public_url = supabase_service.upload_file(file_path, audio_bytes, "audio/mpeg")
+
+        if not public_url:
+            return None
+
+        logger.info(f"Audio uploaded for order {order_id}: {public_url}")
+
+        # Send audio via WhatsApp
+        result = await uazapi_service.send_audio(recipient_phone, public_url)
+
+        # Cleanup: only delete from storage after successful send
+        if result.get("success"):
+            supabase_service.delete_file(file_path)
+            logger.info(f"Audio cleaned up from storage: {file_path}")
+        else:
+            logger.warning(f"Audio send failed, keeping file in storage: {file_path}")
 
         return public_url
 

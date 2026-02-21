@@ -45,7 +45,7 @@ class UAZAPIService:
             return {"success": False, "error": str(e)}
 
     async def send_audio(self, phone: str, audio_url: str, token: str = None) -> Dict[str, Any]:
-        """Send audio message via WhatsApp."""
+        """Send audio as voice message (PTT) via WhatsApp."""
         try:
             phone_clean = phone.replace("@s.whatsapp.net", "").replace("@c.us", "")
             token = token or self.token
@@ -56,8 +56,8 @@ class UAZAPIService:
                     headers={"token": token, "Content-Type": "application/json"},
                     json={
                         "number": phone_clean,
-                        "media_url": audio_url,
-                        "media_type": "audio",
+                        "type": "ptt",
+                        "file": audio_url,
                         "track_source": "cupido",
                     },
                 )

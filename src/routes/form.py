@@ -1,8 +1,10 @@
 """
 Form routes - Buyer fills in anonymous message details
+Supports multi-message flow (1 message at a time) with scheduling.
 """
 import json
 import uuid
+from datetime import datetime, timezone
 from typing import List
 
 from fastapi import APIRouter, File, Form, Request, UploadFile
@@ -34,39 +36,57 @@ async def show_form(request: Request, token: str):
             "message": "Este link nao existe ou expirou.",
         })
 
-    if order["status"] in [OrderStatus.SUBMITTED.value, OrderStatus.DELIVERED.value]:
+    plan_config = get_plan_config(PlanType(order["plan"]))
+    messages_sent = order.get("messages_sent", 0) or 0
+    remaining = plan_config.max_messages - messages_sent
+
+    # If all messages sent, show completion page
+    if remaining <= 0:
         return templates.TemplateResponse("already_sent.html", {
             "request": request,
             "order": order,
         })
 
-    plan_config = get_plan_config(PlanType(order["plan"]))
+    # For premium plan with presentation already submitted
+    if order["status"] in [OrderStatus.SUBMITTED.value, OrderStatus.DELIVERED.value]:
+        if plan_config.has_presentation:
+            return templates.TemplateResponse("already_sent.html", {
+                "request": request,
+                "order": order,
+            })
 
     return templates.TemplateResponse("form.html", {
         "request": request,
         "order": order,
         "plan": plan_config,
         "token": token,
+        "messages_sent": messages_sent,
+        "remaining": remaining,
     })
 
 
 @router.post("/{token}/submit")
 async def submit_form(request: Request, token: str):
-    """Process form submission (basico, com_audio, multi_mensagem)."""
+    """Process single message submission (supports multi-message flow)."""
     try:
         order = supabase_service.get_order_by_token(token)
         if not order:
             return JSONResponse(content={"error": "Order not found"}, status_code=404)
 
-        if order["status"] in [OrderStatus.SUBMITTED.value, OrderStatus.DELIVERED.value]:
-            return JSONResponse(content={"error": "Message already sent"}, status_code=400)
+        plan_config = get_plan_config(PlanType(order["plan"]))
+        messages_sent = order.get("messages_sent", 0) or 0
+        remaining = plan_config.max_messages - messages_sent
+
+        if remaining <= 0:
+            return JSONResponse(content={"error": "Todas as mensagens ja foram enviadas"}, status_code=400)
 
         data = await request.json()
 
         recipient_phone = data.get("recipient_phone", "")
         message = data.get("message", "")
         sender_nickname = data.get("sender_nickname", "Alguem especial")
-        extra_messages = data.get("extra_messages", [])
+        audio_text = data.get("audio_text", "").strip() if data.get("audio_text") else None
+        scheduled_at = data.get("scheduled_at", "").strip() if data.get("scheduled_at") else None
 
         if not validate_phone(recipient_phone):
             return JSONResponse(content={"error": "Telefone invalido"}, status_code=400)
@@ -74,42 +94,95 @@ async def submit_form(request: Request, token: str):
         if not message.strip():
             return JSONResponse(content={"error": "Mensagem nao pode ser vazia"}, status_code=400)
 
+        # Validate audio_text length
+        if audio_text and plan_config.audio_char_limit > 0:
+            if len(audio_text) > plan_config.audio_char_limit:
+                return JSONResponse(
+                    content={"error": f"Texto do audio excede {plan_config.audio_char_limit} caracteres"},
+                    status_code=400,
+                )
+
         recipient_clean = clean_phone_for_whatsapp(recipient_phone)
 
-        # Update order with recipient phone
+        # Always update recipient_phone on order (each msg can go to different number)
         supabase_service.update_order(order["id"], {
             "recipient_phone": recipient_clean,
-            "status": OrderStatus.SUBMITTED.value,
         })
+        order["recipient_phone"] = recipient_clean
 
-        # Save message(s) to database
-        supabase_service.create_message({
+        # Parse scheduled_at if provided
+        scheduled_dt = None
+        if scheduled_at:
+            try:
+                scheduled_dt = datetime.fromisoformat(scheduled_at)
+                if scheduled_dt.tzinfo is None:
+                    scheduled_dt = scheduled_dt.replace(tzinfo=timezone.utc)
+            except ValueError:
+                return JSONResponse(content={"error": "Data de agendamento invalida"}, status_code=400)
+
+        # Save message to database
+        message_data = {
             "order_id": order["id"],
-            "message_index": 0,
-            "content": message,
+            "message_index": messages_sent,
+            "content": message.strip(),
             "sender_nickname": sender_nickname,
+            "audio_text": audio_text,
+            "scheduled_at": scheduled_dt.isoformat() if scheduled_dt else None,
+            "delivered": False,
+        }
+        saved_message = supabase_service.create_message(message_data)
+
+        if not saved_message:
+            return JSONResponse(content={"error": "Falha ao salvar mensagem"}, status_code=500)
+
+        # Increment messages_sent
+        new_messages_sent = messages_sent + 1
+        supabase_service.update_order(order["id"], {
+            "messages_sent": new_messages_sent,
         })
 
-        # For multi-message plan
-        for i, extra_msg in enumerate(extra_messages[:4]):  # Max 4 extra
-            if extra_msg.strip():
-                supabase_service.create_message({
-                    "order_id": order["id"],
-                    "message_index": i + 1,
-                    "content": extra_msg,
-                    "sender_nickname": sender_nickname,
-                })
+        new_remaining = plan_config.max_messages - new_messages_sent
 
         log_form_submitted(order["id"], order["plan"], recipient_clean)
 
-        # Refresh order data and deliver
-        order = supabase_service.get_order_by_token(token)
-        success = await cupido_service.deliver_order(order)
+        # Check if scheduled for the future
+        is_scheduled = False
+        if scheduled_dt:
+            now = datetime.now(timezone.utc)
+            if scheduled_dt > now:
+                is_scheduled = True
 
-        if success:
-            return JSONResponse(content={"status": "ok", "message": "Mensagem enviada!"})
+        if is_scheduled:
+            # Don't deliver now, scheduler will handle it
+            if new_remaining <= 0:
+                supabase_service.update_order(order["id"], {
+                    "status": OrderStatus.SUBMITTED.value,
+                })
+            return JSONResponse(content={
+                "status": "scheduled",
+                "message": "Mensagem agendada com sucesso!",
+                "remaining": new_remaining,
+            })
 
-        return JSONResponse(content={"error": "Falha ao enviar mensagem"}, status_code=500)
+        # Deliver immediately
+        order_fresh = supabase_service.get_order_by_token(token)
+        success = await cupido_service.deliver_single_message(order_fresh, saved_message)
+
+        if not success:
+            return JSONResponse(content={"error": "Falha ao enviar mensagem"}, status_code=500)
+
+        # If this was the last message, mark order as delivered
+        if new_remaining <= 0:
+            supabase_service.update_order(order["id"], {
+                "status": OrderStatus.DELIVERED.value,
+                "delivered_at": "now()",
+            })
+
+        return JSONResponse(content={
+            "status": "ok",
+            "message": "Mensagem enviada!",
+            "remaining": new_remaining,
+        })
 
     except Exception as e:
         log_error("submit_form", e)
@@ -190,6 +263,7 @@ async def upload_premium(
             "message_index": 0,
             "content": title,
             "sender_nickname": sender_nickname,
+            "delivered": False,
         })
 
         order = supabase_service.get_order_by_token(token)

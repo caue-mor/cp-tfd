@@ -59,7 +59,9 @@ class MessageFormSubmission(BaseModel):
     recipient_phone: str
     message: str
     sender_nickname: Optional[str] = "Alguem especial"
-    # Para multi_mensagem
+    audio_text: Optional[str] = None
+    scheduled_at: Optional[str] = None
+    # Para multi_mensagem (legacy, kept for compatibility)
     extra_messages: Optional[List[str]] = None
 
 

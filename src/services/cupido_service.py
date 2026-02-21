@@ -70,6 +70,7 @@ class CupidoService:
             "buyer_email": buyer_email,
             "product_name": product_name,
             "is_test": is_test,
+            "messages_sent": 0,
         }
 
         order = supabase_service.create_order(order_data)
@@ -79,105 +80,60 @@ class CupidoService:
 
         log_order_created(order["id"], plan_type.value, order["buyer_phone"])
 
-        # Send form link to buyer via WhatsApp (2 messages: text + link)
-        base = settings.APP_BASE_URL.strip().rstrip("/")
-        form_url = f"{base}/form/{order['form_token']}"
-
-        msg1 = (
-            f"*Cupido - Mensagem Anonima*\n\n"
-            f"Oi, {buyer_name or 'voce'}! Seu pedido *{plan_config.label}* foi aprovado!\n\n"
-            f"Clique no link abaixo para preencher sua mensagem anonima:"
-        )
-
-        await uazapi_service.send_text(order["buyer_phone"], msg1)
-        await uazapi_service.send_text(order["buyer_phone"], form_url)
-
         return order
 
-    async def deliver_basico(self, order: Dict[str, Any], message_text: str, sender_nickname: str) -> bool:
-        """Deliver basic plan: single anonymous text message."""
+    async def deliver_single_message(self, order: Dict[str, Any], message_data: Dict[str, Any]) -> bool:
+        """
+        Deliver a single message (text + optional audio) to recipient.
+        Handles audio generation, upload, send, and cleanup.
+        """
         recipient = order.get("recipient_phone")
         if not recipient:
+            logger.error(f"No recipient phone for order {order['id']}")
             return False
 
-        text = (
-            f"💘 *Mensagem Anonima do Cupido*\n\n"
-            f"Alguem especial te enviou uma mensagem:\n\n"
-            f"_{message_text}_\n\n"
-            f"— {sender_nickname}"
-        )
+        message_text = message_data.get("content", "")
+        audio_text = message_data.get("audio_text")
+        sender_nickname = message_data.get("sender_nickname", "Alguem especial")
+        message_index = message_data.get("message_index", 0)
+        message_id = message_data.get("id")
 
+        plan_config = get_plan_config(PlanType(order["plan"]))
+
+        # Build formatted text
+        if plan_config.max_messages > 1:
+            msg_num = message_index + 1
+            text = (
+                f"💘 *Mensagem Anonima do Cupido* ({msg_num}/{plan_config.max_messages})\n\n"
+                f"_{message_text}_\n\n"
+                f"— {sender_nickname}"
+            )
+        else:
+            text = (
+                f"💘 *Mensagem Anonima do Cupido*\n\n"
+                f"Alguem especial te enviou uma mensagem"
+                f"{' com audio' if audio_text else ''}:\n\n"
+                f"_{message_text}_\n\n"
+                f"— {sender_nickname}"
+            )
+
+        # If has audio_text, generate and send audio first
+        audio_url = None
+        if audio_text and plan_config.has_audio:
+            audio_url = await elevenlabs_service.generate_send_and_cleanup(
+                audio_text, order["id"], recipient, message_index
+            )
+            if audio_url:
+                log_audio_generated(order["id"], audio_url)
+
+        # Send text message
         result = await uazapi_service.send_text(recipient, text)
 
-        if result.get("success"):
-            supabase_service.update_order(order["id"], {
-                "status": OrderStatus.DELIVERED.value,
-                "delivered_at": "now()",
-            })
-            log_message_sent(recipient, "basico")
-            return True
+        # Mark message as delivered
+        if message_id:
+            supabase_service.mark_message_delivered(message_id, audio_url)
 
-        return False
-
-    async def deliver_com_audio(self, order: Dict[str, Any], message_text: str, sender_nickname: str) -> bool:
-        """Deliver audio plan: text message + generated audio."""
-        recipient = order.get("recipient_phone")
-        if not recipient:
-            return False
-
-        # Send text first
-        text = (
-            f"💘 *Mensagem Anonima do Cupido*\n\n"
-            f"Alguem especial te enviou uma mensagem com audio:\n\n"
-            f"_{message_text}_\n\n"
-            f"— {sender_nickname}"
-        )
-
-        await uazapi_service.send_text(recipient, text)
-
-        # Generate and send audio
-        audio_url = await elevenlabs_service.generate_and_upload(message_text, order["id"])
-        if audio_url:
-            log_audio_generated(order["id"], audio_url)
-            await uazapi_service.send_audio(recipient, audio_url)
-
-            # Save audio URL to message
-            messages = supabase_service.get_messages_by_order(order["id"])
-            if messages:
-                # Update first message with audio URL
-                from src.services.supabase_service import supabase_service as supa
-                supa.client.table(supa.TABLE_MESSAGES).update(
-                    {"audio_url": audio_url}
-                ).eq("id", messages[0]["id"]).execute()
-
-        supabase_service.update_order(order["id"], {
-            "status": OrderStatus.DELIVERED.value,
-            "delivered_at": "now()",
-        })
-        log_message_sent(recipient, "com_audio", has_audio=True)
-        return True
-
-    async def deliver_multi(self, order: Dict[str, Any], messages_data: list) -> bool:
-        """Deliver multi-message plan: multiple sequential text messages."""
-        recipient = order.get("recipient_phone")
-        if not recipient:
-            return False
-
-        # First message is the intro
-        intro = (
-            f"💘 *Mensagem Anonima do Cupido*\n\n"
-            f"Alguem especial te enviou varias mensagens! 💌"
-        )
-
-        texts = [intro] + [m.get("content", "") for m in messages_data if m.get("content")]
-
-        await uazapi_service.send_multiple_messages(recipient, texts, typing_duration_ms=2500)
-
-        supabase_service.update_order(order["id"], {
-            "status": OrderStatus.DELIVERED.value,
-            "delivered_at": "now()",
-        })
-        log_message_sent(recipient, "multi_mensagem")
+        log_message_sent(recipient, order["plan"], has_audio=bool(audio_url))
         return True
 
     async def deliver_premium(self, order: Dict[str, Any], presentation_id: str) -> bool:
@@ -209,7 +165,7 @@ class CupidoService:
         return False
 
     async def deliver_order(self, order: Dict[str, Any]) -> bool:
-        """Deliver an order based on its plan type."""
+        """Deliver an order based on its plan type (used for immediate full delivery)."""
         plan = order.get("plan")
         order_id = order.get("id")
 
@@ -218,19 +174,7 @@ class CupidoService:
             logger.error(f"No messages found for order {order_id}")
             return False
 
-        first_message = messages[0]
-        sender_nickname = first_message.get("sender_nickname", "Alguem especial")
-
-        if plan == PlanType.BASICO.value:
-            return await self.deliver_basico(order, first_message["content"], sender_nickname)
-
-        elif plan == PlanType.COM_AUDIO.value:
-            return await self.deliver_com_audio(order, first_message["content"], sender_nickname)
-
-        elif plan == PlanType.MULTI_MENSAGEM.value:
-            return await self.deliver_multi(order, messages)
-
-        elif plan == PlanType.PREMIUM_HISTORIA.value:
+        if plan == PlanType.PREMIUM_HISTORIA.value:
             # For premium, check if presentation exists
             presentations = supabase_service.client.table(
                 supabase_service.TABLE_PRESENTATIONS
@@ -242,9 +186,15 @@ class CupidoService:
                 logger.error(f"No presentation found for premium order {order_id}")
                 return False
 
-        else:
-            logger.error(f"Unknown plan type: {plan}")
-            return False
+        # For all other plans, deliver each message
+        for msg in messages:
+            await self.deliver_single_message(order, msg)
+
+        supabase_service.update_order(order["id"], {
+            "status": OrderStatus.DELIVERED.value,
+            "delivered_at": "now()",
+        })
+        return True
 
 
 # Global instance

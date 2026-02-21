@@ -160,6 +160,47 @@ class SupabaseService:
         except Exception as e:
             logger.error(f"Error incrementing view count: {e}")
 
+    def count_messages_by_order(self, order_id: str) -> int:
+        """Count messages for an order."""
+        try:
+            response = (
+                self.client.table(self.TABLE_MESSAGES)
+                .select("id", count="exact")
+                .eq("order_id", order_id)
+                .execute()
+            )
+            return response.count or 0
+        except Exception as e:
+            logger.error(f"Error counting messages for order {order_id}: {e}")
+            return 0
+
+    def get_pending_scheduled_messages(self, now_iso: str) -> List[Dict[str, Any]]:
+        """Get messages that are scheduled and past due for delivery."""
+        try:
+            response = (
+                self.client.table(self.TABLE_MESSAGES)
+                .select("*, cupido_orders!inner(id, plan, recipient_phone, buyer_phone, messages_sent, status)")
+                .eq("delivered", False)
+                .not_.is_("scheduled_at", "null")
+                .lte("scheduled_at", now_iso)
+                .order("scheduled_at")
+                .execute()
+            )
+            return response.data or []
+        except Exception as e:
+            logger.error(f"Error fetching scheduled messages: {e}")
+            return []
+
+    def mark_message_delivered(self, message_id: str, audio_url: str = None) -> None:
+        """Mark a message as delivered."""
+        try:
+            updates = {"delivered": True}
+            if audio_url:
+                updates["audio_url"] = audio_url
+            self.client.table(self.TABLE_MESSAGES).update(updates).eq("id", message_id).execute()
+        except Exception as e:
+            logger.error(f"Error marking message {message_id} as delivered: {e}")
+
     # ── Storage ───────────────────────────────────────────────────────
 
     def upload_file(self, file_path: str, file_bytes: bytes, content_type: str = "audio/mpeg") -> Optional[str]:
@@ -180,6 +221,16 @@ class SupabaseService:
     def upload_image(self, file_path: str, file_bytes: bytes, content_type: str = "image/jpeg") -> Optional[str]:
         """Upload image to Supabase Storage and return public URL."""
         return self.upload_file(file_path, file_bytes, content_type)
+
+    def delete_file(self, file_path: str) -> bool:
+        """Delete file from Supabase Storage."""
+        try:
+            self.client.storage.from_(self.BUCKET_ASSETS).remove([file_path])
+            logger.info(f"File deleted: {file_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Error deleting file {file_path}: {e}")
+            return False
 
 
 # Global instance

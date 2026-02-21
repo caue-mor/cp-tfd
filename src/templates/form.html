@@ -13,13 +13,21 @@
         {% endif %}
     </div>
 
+    {% if plan.max_messages > 1 %}
+    <div class="message-counter">
+        <span class="counter-badge">Mensagem {{ messages_sent + 1 }} de {{ plan.max_messages }}</span>
+        <span class="counter-remaining">{{ remaining }} restante{{ 's' if remaining != 1 else '' }}</span>
+    </div>
+    {% endif %}
+
     {% if plan.has_presentation %}
     {# Premium plan - image upload form #}
     <form id="premium-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="recipient_phone">Telefone do destinatario</label>
             <input type="tel" id="recipient_phone" name="recipient_phone"
-                   placeholder="(11) 99999-9999" required>
+                   placeholder="(11) 99999-9999" required
+                   {% if order.recipient_phone %}value="{{ order.recipient_phone }}" readonly{% endif %}>
         </div>
 
         <div class="form-group">
@@ -48,7 +56,7 @@
         </button>
     </form>
     {% else %}
-    {# Standard plans - text form #}
+    {# Standard plans - text form (1 message at a time) #}
     <form id="message-form">
         <div class="form-group">
             <label for="recipient_phone">Telefone do destinatario</label>
@@ -64,13 +72,17 @@
             <span class="char-count"><span id="char-count">0</span>/1000</span>
         </div>
 
-        {% if plan.max_messages > 1 %}
-        <div id="extra-messages">
-            <p class="hint">Voce pode enviar ate {{ plan.max_messages }} mensagens!</p>
-            <div id="extra-fields"></div>
-            <button type="button" id="add-message-btn" class="btn btn-secondary">
-                + Adicionar mensagem
-            </button>
+        {% if plan.has_audio and plan.audio_char_limit > 0 %}
+        <div class="form-group">
+            <label for="audio_text">🔊 Texto para audio do Stitch</label>
+            <p class="hint">Escreva o que o Stitch vai falar em audio (separado da mensagem escrita)</p>
+            <textarea id="audio_text" name="audio_text" rows="3"
+                      placeholder="Ex: Oi, eu sou o Stitch e alguem te ama muito..."
+                      maxlength="{{ plan.audio_char_limit }}"></textarea>
+            <span class="char-count">
+                <span id="audio-char-count">0</span>/{{ plan.audio_char_limit }} caracteres
+                (~{{ '20' if plan.audio_char_limit == 300 else '10' }}s de audio)
+            </span>
         </div>
         {% endif %}
 
@@ -80,11 +92,16 @@
                    value="Alguem especial" maxlength="50">
         </div>
 
-        {% if plan.has_audio %}
-        <div class="audio-info">
-            🔊 O Cupido tambem vai gerar um audio com sua mensagem!
+        <div class="schedule-section">
+            <label class="checkbox-label">
+                <input type="checkbox" id="schedule-toggle">
+                ⏰ Agendar envio surpresa
+            </label>
+            <div id="schedule-picker" style="display:none">
+                <p class="hint">Escolha quando a mensagem sera entregue:</p>
+                <input type="datetime-local" id="scheduled_at" name="scheduled_at">
+            </div>
         </div>
-        {% endif %}
 
         <button type="submit" class="btn btn-primary" id="submit-btn">
             💘 Enviar Mensagem
@@ -95,6 +112,10 @@
 
 <input type="hidden" id="form-token" value="{{ token }}">
 <input type="hidden" id="max-messages" value="{{ plan.max_messages }}">
+<input type="hidden" id="messages-sent" value="{{ messages_sent }}">
+<input type="hidden" id="remaining" value="{{ remaining }}">
+<input type="hidden" id="has-audio" value="{{ 'true' if plan.has_audio and plan.audio_char_limit > 0 else 'false' }}">
+<input type="hidden" id="audio-char-limit" value="{{ plan.audio_char_limit }}">
 <input type="hidden" id="is-premium" value="{{ 'true' if plan.has_presentation else 'false' }}">
 {% endblock %}
 

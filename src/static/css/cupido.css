@@ -136,6 +136,78 @@ textarea {
     text-align: center;
 }
 
+/* Message counter (multi-message) */
+.message-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: var(--pink-light);
+    font-size: 0.9rem;
+}
+
+.counter-badge {
+    font-weight: 600;
+    color: var(--pink-dark);
+}
+
+.counter-remaining {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+/* Schedule section */
+.schedule-section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #fff8e1;
+    border-radius: 12px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--pink);
+}
+
+#schedule-picker {
+    margin-top: 12px;
+}
+
+input[type="datetime-local"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    margin-top: 8px;
+}
+
+input[type="datetime-local"]:focus {
+    outline: none;
+    border-color: var(--pink);
+}
+
+/* Char count states */
+.char-count.near-limit {
+    color: #f57c00;
+}
+
+.char-count.at-limit {
+    color: var(--red);
+    font-weight: 600;
+}
+
 /* Buttons */
 .btn {
     display: block;

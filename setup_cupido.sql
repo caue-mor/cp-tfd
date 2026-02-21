@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS cupido_orders (
     recipient_phone TEXT,
     form_token UUID UNIQUE DEFAULT gen_random_uuid(),
     is_test BOOLEAN DEFAULT FALSE,
+    messages_sent INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     delivered_at TIMESTAMPTZ
 );
@@ -27,7 +28,10 @@ CREATE TABLE IF NOT EXISTS cupido_messages (
     message_index INT DEFAULT 0,
     content TEXT NOT NULL,
     audio_url TEXT,
+    audio_text TEXT,
     sender_nickname TEXT,
+    scheduled_at TIMESTAMPTZ,
+    delivered BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -40,6 +44,13 @@ CREATE TABLE IF NOT EXISTS cupido_presentations (
     view_count INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ── Migration: Multi-message + Audio refactor + Scheduling ──────────
+-- Run these ALTER TABLEs if tables already exist:
+-- ALTER TABLE cupido_orders ADD COLUMN IF NOT EXISTS messages_sent INT DEFAULT 0;
+-- ALTER TABLE cupido_messages ADD COLUMN IF NOT EXISTS audio_text TEXT;
+-- ALTER TABLE cupido_messages ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMPTZ;
+-- ALTER TABLE cupido_messages ADD COLUMN IF NOT EXISTS delivered BOOLEAN DEFAULT FALSE;
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_cupido_orders_form_token ON cupido_orders(form_token);
