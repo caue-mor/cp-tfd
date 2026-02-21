@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Fidelidade - Descubra a Verdade</title>
+    <link rel="stylesheet" href="/static/css/fidelidade.css">
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="quiz-progress">
+        <div class="quiz-progress-fill" id="progress-fill"></div>
+    </div>
+
+    <div class="quiz-container">
+        <!-- Step 1: Gancho emocional -->
+        <div class="quiz-step active" id="step-1">
+            <div class="quiz-content">
+                <div class="quiz-emoji">🔍</div>
+                <h1 class="quiz-title">Voce confia 100%<br>no seu parceiro?</h1>
+                <p class="quiz-subtitle">Responda com sinceridade. So voce vai ver.</p>
+                <div class="quiz-options">
+                    <button class="quiz-option" onclick="nextStep(2)">
+                        <span class="option-icon">😌</span>
+                        <span>Sim, totalmente</span>
+                    </button>
+                    <button class="quiz-option" onclick="nextStep(2)">
+                        <span class="option-icon">🤔</span>
+                        <span>Tenho algumas duvidas</span>
+                    </button>
+                    <button class="quiz-option" onclick="nextStep(2)">
+                        <span class="option-icon">😰</span>
+                        <span>Ja desconfio de algo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Intuicao + conexao emocional -->
+        <div class="quiz-step" id="step-2">
+            <div class="quiz-content">
+                <div class="quiz-emoji">💭</div>
+                <h1 class="quiz-title">A gente sabe quando<br>algo nao ta certo.</h1>
+                <div class="quiz-intuition">
+                    Quando a desconfianca aparece, <strong>ela nao vai embora</strong>. Voce tenta ignorar, mas o pensamento volta. Sempre volta.<br><br>
+                    Voce olha o celular dele escondida e <em>corre o risco de ser pega</em>. Voce finge que ta tudo bem, mas por dentro o incomodo so cresce.<br><br>
+                    O pior de tudo nao e a traicao. O pior e <strong>nao saber se voce esta com a pessoa certa</strong>.<br><br>
+                    Sua intuicao pode estar gritando. Mas so da pra saber de verdade... <em>testando</em>.
+                </div>
+                <button class="quiz-btn" onclick="nextStep(3)">Quero tirar essa duvida →</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Apresentacao da Bia -->
+        <div class="quiz-step" id="step-3">
+            <div class="quiz-content">
+                <p class="quiz-subtitle" style="margin-bottom: 20px;">Essa e a pessoa que vai conversar com ele:</p>
+                <div class="bia-card">
+                    <div class="bia-photo-wrapper">
+                        <img src="/static/images/bia-profile.jpg" alt="Beatriz Vasconcelos" class="bia-photo">
+                        <div class="bia-online-dot"></div>
+                    </div>
+                    <div class="bia-info">
+                        <h2 class="bia-name">Beatriz Vasconcelos</h2>
+                        <p class="bia-details">24 anos · Lojinha de roupas · Mora na sua regiao</p>
+                    </div>
+                </div>
+                <p class="quiz-text">O WhatsApp dela e <strong>real</strong>. Foto, status, tudo preenchido. Ele nao vai suspeitar de nada.</p>
+                <p class="quiz-text-small">E o melhor: <strong>voce</strong> escreve tudo que ela manda.</p>
+                <button class="quiz-btn" onclick="nextStep(4)">Continuar →</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Como funciona -->
+        <div class="quiz-step" id="step-4">
+            <div class="quiz-content">
+                <h1 class="quiz-title">Como funciona?</h1>
+                <p class="quiz-subtitle">3 passos simples:</p>
+                <div class="how-steps">
+                    <div class="how-step">
+                        <div class="how-step-number">1</div>
+                        <div class="how-step-content">
+                            <h3>Voce escreve</h3>
+                            <p>A mensagem que a Bia vai mandar pra ele. Voce sabe o que dizer.</p>
+                        </div>
+                    </div>
+                    <div class="how-step">
+                        <div class="how-step-number">2</div>
+                        <div class="how-step-content">
+                            <h3>Ele responde</h3>
+                            <p>Voce ve tudo que ele manda, em tempo real. Cada palavra.</p>
+                        </div>
+                    </div>
+                    <div class="how-step">
+                        <div class="how-step-number">3</div>
+                        <div class="how-step-content">
+                            <h3>48h de acesso</h3>
+                            <p>Voce tem 48 horas pra conduzir a conversa como quiser.</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="quiz-btn" onclick="nextStep(5)">Quero testar →</button>
+            </div>
+        </div>
+
+        <!-- Step 5: CTA final -->
+        <div class="quiz-step" id="step-5">
+            <div class="quiz-content">
+                <div class="quiz-emoji">🎯</div>
+                <h1 class="quiz-title">Ninguem conhece ele<br>melhor que voce.</h1>
+                <p class="quiz-subtitle-highlight">Voce sabe exatamente o que dizer pra ele cair.</p>
+                <p class="quiz-subtitle">Melhor que qualquer outra pessoa testando. Porque voce conhece os pontos fracos dele.</p>
+                <div class="quiz-final-question">Pronta pra descobrir a verdade?</div>
+                <a href="/fidelidade" class="quiz-cta">Comecar agora — R$29,90</a>
+                <p class="quiz-guarantee">🔒 100% anonimo · Ele nunca vai saber</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        function updateProgress() {
+            const pct = (currentStep / totalSteps) * 100;
+            document.getElementById('progress-fill').style.width = pct + '%';
+        }
+
+        function nextStep(step) {
+            const current = document.getElementById('step-' + currentStep);
+            const next = document.getElementById('step-' + step);
+            if (!current || !next) return;
+
+            current.classList.remove('active');
+            current.classList.add('exit');
+
+            setTimeout(() => {
+                current.classList.remove('exit');
+                next.classList.add('active');
+                currentStep = step;
+                updateProgress();
+            }, 300);
+        }
+
+        // Init
+        updateProgress();
+    </script>
+</body>
+</html>

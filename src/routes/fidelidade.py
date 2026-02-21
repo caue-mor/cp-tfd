@@ -53,6 +53,14 @@ def get_user_id_from_request(request: Request) -> Optional[str]:
 
 # ── HTML Pages ─────────────────────────────────────────────────
 
+@router.get("/fidelidade/quiz", response_class=HTMLResponse)
+async def fidelidade_quiz_page(request: Request):
+    """Render instigating quiz before registration."""
+    return templates.TemplateResponse("fidelidade_quiz.html", {
+        "request": request,
+    })
+
+
 @router.get("/fidelidade", response_class=HTMLResponse)
 async def fidelidade_register_page(request: Request):
     """Render register/login page."""
