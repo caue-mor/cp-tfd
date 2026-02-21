@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Cupido - Area de Acesso{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="logo">💘</div>
+        <h1>Cupido</h1>
+        <p class="subtitle">Area de Acesso</p>
+    </div>
+
+    <div id="login-section">
+        <form id="login-form">
+            <div class="form-group">
+                <label for="phone">Seu telefone (usado na compra)</label>
+                <input type="tel" id="phone" name="phone"
+                       placeholder="(85) 99999-9999" required>
+            </div>
+            <button type="submit" class="btn btn-primary" id="login-btn">
+                Entrar
+            </button>
+        </form>
+    </div>
+
+    <div id="orders-section" style="display:none">
+        <div class="orders-header">
+            <p class="greeting" id="greeting-text"></p>
+        </div>
+        <div id="orders-list" class="orders-list"></div>
+        <div class="orders-footer">
+            <button class="btn btn-secondary" onclick="document.getElementById('orders-section').style.display='none'; document.getElementById('login-section').style.display='block';">
+                Voltar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    const phoneInput = document.getElementById('phone');
+    const loginSection = document.getElementById('login-section');
+    const ordersSection = document.getElementById('orders-section');
+    const ordersList = document.getElementById('orders-list');
+    const greetingText = document.getElementById('greeting-text');
+
+    // Phone mask
+    phoneInput.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 7) {
+            v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+        } else if (v.length > 2) {
+            v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+        }
+        e.target.value = v;
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true;
+        btn.textContent = 'Buscando...';
+
+        const phone = phoneInput.value.replace(/\D/g, '');
+
+        if (phone.length < 10) {
+            showToast('Telefone invalido', true);
+            btn.disabled = false;
+            btn.textContent = 'Entrar';
+            return;
+        }
+
+        try {
+            const resp = await fetch('/acesso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone }),
+            });
+
+            const data = await resp.json();
+
+            if (!resp.ok) {
+                showToast(data.error || 'Erro ao buscar pedidos', true);
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+                return;
+            }
+
+            // Show orders
+            const orders = data.orders;
+            greetingText.textContent = `${orders.length} pedido${orders.length !== 1 ? 's' : ''} encontrado${orders.length !== 1 ? 's' : ''}`;
+
+            ordersList.innerHTML = orders.map(order => {
+                const date = new Date(order.created_at).toLocaleDateString('pt-BR');
+                if (order.usable) {
+                    return `
+                        <a href="/form/${order.form_token}" class="order-card order-available">
+                            <div class="order-plan">${order.plan_label}</div>
+                            <div class="order-status">${order.status_label}</div>
+                            <div class="order-date">${date}</div>
+                            <div class="order-action">Acessar \u2192</div>
+                        </a>
+                    `;
+                } else {
+                    return `
+                        <div class="order-card order-used">
+                            <div class="order-plan">${order.plan_label}</div>
+                            <div class="order-status">${order.status_label}</div>
+                            <div class="order-date">${date}</div>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            loginSection.style.display = 'none';
+            ordersSection.style.display = 'block';
+
+        } catch (err) {
+            showToast('Erro de conexao', true);
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+    });
+});
+
+function showToast(msg, isError = false) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast ${isError ? 'error' : ''} show`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %}

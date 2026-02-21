@@ -123,12 +123,14 @@ from src.routes.webhook import router as webhook_router
 from src.routes.form import router as form_router
 from src.routes.presentation import router as presentation_router
 from src.routes.fidelidade import router as fidelidade_router
+from src.routes.acesso import router as acesso_router
 
 app.include_router(quiz_router)
 app.include_router(webhook_router)
 app.include_router(form_router)
 app.include_router(presentation_router)
 app.include_router(fidelidade_router)
+app.include_router(acesso_router)
 
 # Static files (mount after routes so routes take priority)
 app.mount("/static", StaticFiles(directory="src/static"), name="static")

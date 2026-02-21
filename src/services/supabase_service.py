@@ -60,6 +60,21 @@ class SupabaseService:
             logger.error(f"Error fetching order by token: {e}")
             return None
 
+    def get_orders_by_phone(self, phone: str) -> List[Dict[str, Any]]:
+        """Get all orders for a buyer phone number."""
+        try:
+            response = (
+                self.client.table(self.TABLE_ORDERS)
+                .select("*")
+                .eq("buyer_phone", phone)
+                .order("created_at", desc=True)
+                .execute()
+            )
+            return response.data or []
+        except Exception as e:
+            logger.error(f"Error fetching orders by phone: {e}")
+            return []
+
     def get_order_by_sale_id(self, sale_id: str) -> Optional[Dict[str, Any]]:
         """Get order by Lowify sale_id."""
         try:

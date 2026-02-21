@@ -249,6 +249,78 @@ input[type="datetime-local"]:focus {
     background: var(--pink-light);
 }
 
+/* Orders list (acesso page) */
+.orders-header {
+    padding: 16px 24px 0;
+}
+
+.orders-header .greeting {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.orders-list {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.order-card {
+    display: block;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #eee;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+}
+
+.order-available {
+    border-color: var(--pink-light);
+    cursor: pointer;
+}
+
+.order-available:hover {
+    border-color: var(--pink);
+    box-shadow: 0 2px 12px rgba(233, 30, 99, 0.15);
+    transform: translateY(-1px);
+}
+
+.order-used {
+    opacity: 0.5;
+    background: #f9f9f9;
+}
+
+.order-plan {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.order-status {
+    font-size: 0.85rem;
+    color: var(--pink-dark);
+}
+
+.order-date {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+.order-action {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--pink);
+    margin-top: 8px;
+}
+
+.orders-footer {
+    padding: 0 24px 24px;
+}
+
 /* Drop zone */
 .drop-zone {
     border: 2px dashed var(--pink-light);

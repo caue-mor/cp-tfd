@@ -25,7 +25,7 @@ class Settings(BaseSettings):
 
     # Eleven Labs (Text-to-Speech)
     ELEVENLABS_API_KEY: str = ""
-    ELEVENLABS_VOICE_ID: str = "pNInz6obpgDQGcFmaJgB"
+    ELEVENLABS_VOICE_ID: str = "IGmfzACCDHYu8YfQJuVi"
     ELEVENLABS_MODEL_ID: str = "eleven_multilingual_v2"
 
     # App
