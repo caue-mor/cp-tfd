@@ -136,13 +136,22 @@ class CupidoService:
         log_message_sent(recipient, order["plan"], has_audio=bool(audio_url))
         return True
 
-    async def deliver_premium(self, order: Dict[str, Any], presentation_id: str) -> bool:
-        """Deliver premium plan: send link to slideshow presentation."""
+    async def deliver_premium(self, order: Dict[str, Any], presentation_id: str, audio_text: str = None) -> bool:
+        """Deliver premium plan: optional audio + link to slideshow presentation."""
         recipient = order.get("recipient_phone")
         if not recipient:
             return False
 
-        presentation_url = f"{settings.APP_BASE_URL}/p/{presentation_id}"
+        # Generate and send audio first if provided
+        if audio_text:
+            audio_url = await elevenlabs_service.generate_send_and_cleanup(
+                audio_text, order["id"], recipient, 0
+            )
+            if audio_url:
+                log_audio_generated(order["id"], audio_url)
+
+        base = settings.APP_BASE_URL.strip().rstrip("/")
+        presentation_url = f"{base}/p/{presentation_id}"
 
         text = (
             f"💘 *Mensagem Anonima do Cupido*\n\n"
@@ -159,7 +168,7 @@ class CupidoService:
                 "status": OrderStatus.DELIVERED.value,
                 "delivered_at": "now()",
             })
-            log_message_sent(recipient, "premium_historia")
+            log_message_sent(recipient, "premium_historia", has_audio=bool(audio_text))
             return True
 
         return False

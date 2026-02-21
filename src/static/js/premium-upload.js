@@ -85,6 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Audio char counter for premium
+    const premiumAudioInput = document.getElementById('premium_audio_text');
+    const premiumAudioCount = document.getElementById('premium-audio-char-count');
+    if (premiumAudioInput && premiumAudioCount) {
+        premiumAudioInput.addEventListener('input', () => {
+            premiumAudioCount.textContent = premiumAudioInput.value.length;
+        });
+    }
+
     // Submit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -115,6 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('title', document.getElementById('title').value);
         formData.append('sender_nickname', document.getElementById('sender_nickname').value);
         formData.append('slides_data', JSON.stringify(captions));
+
+        // Audio text (optional)
+        if (premiumAudioInput && premiumAudioInput.value.trim()) {
+            formData.append('audio_text', premiumAudioInput.value.trim());
+        }
 
         selectedFiles.forEach(file => {
             formData.append('files', file);

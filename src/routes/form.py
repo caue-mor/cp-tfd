@@ -197,6 +197,7 @@ async def upload_premium(
     sender_nickname: str = Form("Alguem especial"),
     recipient_phone: str = Form(...),
     slides_data: str = Form("[]"),
+    audio_text: str = Form(""),
     files: List[UploadFile] = File(default=[]),
 ):
     """Process premium upload with images for slideshow."""
@@ -258,16 +259,18 @@ async def upload_premium(
         })
 
         # Save a message entry for the premium plan
+        audio_text_clean = audio_text.strip() if audio_text else None
         supabase_service.create_message({
             "order_id": order["id"],
             "message_index": 0,
             "content": title,
             "sender_nickname": sender_nickname,
+            "audio_text": audio_text_clean,
             "delivered": False,
         })
 
         order = supabase_service.get_order_by_token(token)
-        success = await cupido_service.deliver_premium(order, presentation["id"])
+        success = await cupido_service.deliver_premium(order, presentation["id"], audio_text_clean)
 
         if success:
             return JSONResponse(content={"status": "ok", "message": "Apresentacao enviada!"})

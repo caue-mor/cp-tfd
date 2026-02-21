@@ -42,6 +42,20 @@
                    value="Alguem especial" maxlength="50">
         </div>
 
+        {% if plan.has_audio and plan.audio_char_limit > 0 %}
+        <div class="form-group">
+            <label for="premium_audio_text">🔊 Texto para audio do Stitch</label>
+            <p class="hint">Escreva o que o Stitch vai falar em audio junto com a apresentacao</p>
+            <textarea id="premium_audio_text" name="audio_text" rows="3"
+                      placeholder="Ex: Oi, eu sou o Stitch e alguem preparou algo muito especial pra voce..."
+                      maxlength="{{ plan.audio_char_limit }}"></textarea>
+            <span class="char-count">
+                <span id="premium-audio-char-count">0</span>/{{ plan.audio_char_limit }} caracteres
+                (~20s de audio)
+            </span>
+        </div>
+        {% endif %}
+
         <div class="form-group">
             <label>Fotos (arraste ou clique)</label>
             <div id="drop-zone" class="drop-zone">
