@@ -936,6 +936,31 @@ body {
     font-weight: 600;
 }
 
+/* ── Message suggestions (step 6) ──────────────────────────── */
+.msg-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.msg-suggestion {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 20px;
+    color: #ccc;
+    font-size: 13px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.msg-suggestion:hover {
+    border-color: #e63946;
+    color: #fff;
+}
+
 /* ── Testimonial print (step 7) ────────────────────────────── */
 .testimonial-print {
     margin: 20px 0;
