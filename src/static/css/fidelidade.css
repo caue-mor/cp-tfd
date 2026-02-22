@@ -792,6 +792,24 @@ body {
     line-height: 1.4;
 }
 
+/* Testimonial bubble (depoimento real) */
+.testimonial-bubble {
+    background: #1a2e1a;
+    border-left: 3px solid #4caf50;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 16px;
+    margin: 16px 0;
+    text-align: left;
+    font-size: 14px;
+    color: #ccc;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.testimonial-bubble p {
+    margin: 0;
+}
+
 /* Quiz form (steps 3 & 6) */
 .quiz-form {
     text-align: left;

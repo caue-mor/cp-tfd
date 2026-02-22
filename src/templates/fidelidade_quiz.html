@@ -13,39 +13,55 @@
     </div>
 
     <div class="quiz-container">
-        <!-- Step 1: Gancho emocional -->
+        <!-- Step 1: Bia se apresenta + depoimento real -->
         <div class="quiz-step active" id="step-1">
             <div class="quiz-content">
-                <div class="quiz-emoji">&#x1F50D;</div>
-                <h1 class="quiz-title">Voc&#234; confia 100%<br>no seu parceiro?</h1>
-                <p class="quiz-subtitle">Responda com sinceridade. S&#243; voc&#234; vai ver.</p>
-                <div class="quiz-options">
+                <div class="bia-card" style="margin-bottom: 16px;">
+                    <div class="bia-photo-wrapper">
+                        <img src="/static/images/bia-profile.jpg" alt="Bia" class="bia-photo">
+                        <div class="bia-online-dot"></div>
+                    </div>
+                    <div class="bia-info">
+                        <h2 class="bia-name">Bia Vasconcelos</h2>
+                        <p class="bia-details">24 anos &#183; Criadora do Teste de Fidelidade</p>
+                    </div>
+                </div>
+                <div class="quiz-intuition">
+                    Oi, eu sou a Bia. <strong>Eu j&#225; passei por isso.</strong><br><br>
+                    Eu sei o que &#233; amar algu&#233;m e viver com aquela d&#250;vida que n&#227;o te deixa dormir. Por isso criei esse teste.<br><br>
+                    Todo dia eu recebo mensagens assim:
+                </div>
+                <div class="testimonial-bubble">
+                    <p>&#8220;Bia, preciso da sua ajuda. T&#244; noiva e ele &#233; pastor da igreja. Fui num culto e foi revelado que eu teria uma grande trai&#231;&#227;o na minha vida. Depois disso n&#227;o tive paz... Preciso muito desse teste pra ter certeza pq vamos casar semana que vem&#8221;</p>
+                </div>
+                <p class="quiz-text" style="margin-top: 16px;">Essa &#233; s&#243; <strong>uma</strong> das centenas que eu recebo. E eu entendo cada uma delas, porque <em>eu j&#225; vivi isso na pele</em>.</p>
+                <div class="quiz-options" style="margin-top: 20px;">
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">&#x1F60C;</span>
-                        <span>Sim, totalmente</span>
+                        <span class="option-icon">&#x1F614;</span>
+                        <span>Estou passando por algo parecido</span>
                     </button>
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">&#x1F914;</span>
-                        <span>Tenho algumas d&#250;vidas</span>
+                        <span class="option-icon">&#x1F62C;</span>
+                        <span>Tenho medo de estar sendo tra&#237;da</span>
                     </button>
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">&#x1F630;</span>
-                        <span>J&#225; desconfio de algo</span>
+                        <span class="option-icon">&#x1F4AA;</span>
+                        <span>Quero ter certeza antes de decidir</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Step 2: Intuicao + conexao emocional -->
+        <!-- Step 2: Bia fala sobre a dor + conexao emocional -->
         <div class="quiz-step" id="step-2">
             <div class="quiz-content">
-                <div class="quiz-emoji">&#x1F4AD;</div>
-                <h1 class="quiz-title">A gente sabe quando<br>algo n&#227;o t&#225; certo.</h1>
+                <div class="quiz-emoji">&#x1F4AC;</div>
+                <h1 class="quiz-title">Eu sei como &#233;.</h1>
                 <div class="quiz-intuition">
-                    Quando a desconfian&#231;a aparece, <strong>ela n&#227;o vai embora</strong>. Voc&#234; tenta ignorar, mas o pensamento volta. Sempre volta.<br><br>
-                    Voc&#234; olha o celular dele escondida e <em>corre o risco de ser pega</em>. Voc&#234; finge que t&#225; tudo bem, mas por dentro o inc&#244;modo s&#243; cresce.<br><br>
-                    O pior de tudo n&#227;o &#233; a trai&#231;&#227;o. O pior &#233; <strong>n&#227;o saber se voc&#234; est&#225; com a pessoa certa</strong>.<br><br>
-                    Sua intui&#231;&#227;o pode estar gritando. Mas s&#243; d&#225; pra saber de verdade... <em>testando</em>.
+                    Eu j&#225; fiquei acordada de madrugada olhando o celular dele enquanto ele dormia. J&#225; fingi que tava tudo bem no almo&#231;o de fam&#237;lia enquanto por dentro eu tava <strong>despeda&#231;ada</strong>.<br><br>
+                    A desconfian&#231;a &#233; a pior coisa. Porque voc&#234; <em>n&#227;o consegue provar</em>, mas tamb&#233;m n&#227;o consegue ignorar.<br><br>
+                    Tem mulher que descobre na v&#233;spera do casamento. Tem mulher que descobre depois de anos. E tem mulher que <strong>prefere n&#227;o descobrir</strong>.<br><br>
+                    Eu criei esse teste porque nenhuma mulher merece viver na d&#250;vida. Se ele for fiel, <em>voc&#234; vai ter paz</em>. Se n&#227;o for, <strong>pelo menos voc&#234; vai saber</strong>.
                 </div>
                 <button class="quiz-btn" onclick="nextStep(3)">Quero tirar essa d&#250;vida &#8594;</button>
             </div>
@@ -73,22 +89,15 @@
             </div>
         </div>
 
-        <!-- Step 4: Apresentacao da Bia (personalizado com nome) -->
+        <!-- Step 4: Como a Bia vai agir (personalizado com nome) -->
         <div class="quiz-step" id="step-4">
             <div class="quiz-content">
-                <p class="quiz-subtitle" style="margin-bottom: 20px;"><span id="bia-intro-name"></span>, essa &#233; quem vai conversar com ele:</p>
-                <div class="bia-card">
-                    <div class="bia-photo-wrapper">
-                        <img src="/static/images/bia-profile.jpg" alt="Beatriz Vasconcelos" class="bia-photo">
-                        <div class="bia-online-dot"></div>
-                    </div>
-                    <div class="bia-info">
-                        <h2 class="bia-name">Beatriz Vasconcelos</h2>
-                        <p class="bia-details">24 anos &#183; Lojinha de roupas &#183; Mora na sua regi&#227;o</p>
-                    </div>
+                <h1 class="quiz-title"><span id="bia-intro-name"></span>, vou te explicar<br>como eu fa&#231;o</h1>
+                <div class="quiz-intuition">
+                    Eu tenho um WhatsApp <strong>real</strong> &#8212; foto, status, tudo preenchido. Pra ele, eu sou s&#243; uma menina bonita que mandou mensagem.<br><br>
+                    Ele <em>n&#227;o vai suspeitar de nada</em>. Eu j&#225; fiz isso centenas de vezes.<br><br>
+                    E o melhor: <strong>voc&#234; escreve tudo que eu mando</strong>. Voc&#234; conhece ele melhor do que ningu&#233;m. Sabe exatamente o que dizer pra ele cair.
                 </div>
-                <p class="quiz-text">O WhatsApp dela &#233; <strong>real</strong>. Foto, status, tudo preenchido. Ele n&#227;o vai suspeitar de nada.</p>
-                <p class="quiz-text-small">E o melhor: <strong>voc&#234;</strong> escreve tudo que ela manda.</p>
                 <button class="quiz-btn" onclick="nextStep(5)">Continuar &#8594;</button>
             </div>
         </div>
