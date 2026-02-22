@@ -40,6 +40,13 @@ class SendMessagePayload(BaseModel):
     content: str
 
 
+class QuickTestPayload(BaseModel):
+    nome: str
+    buyer_phone: str
+    target_phone: str
+    first_message: str
+
+
 # ── Auth helper ────────────────────────────────────────────────
 
 def get_user_id_from_request(request: Request) -> Optional[str]:
@@ -115,6 +122,22 @@ async def api_login(payload: LoginPayload):
 
     result = fidelidade_service.login_user(payload.email, payload.senha)
     status = 200 if result["success"] else 401
+    return JSONResponse(result, status_code=status)
+
+
+@router.post("/api/fidelidade/quick-test")
+async def api_quick_test(payload: QuickTestPayload):
+    """Create test directly from quiz (no separate registration)."""
+    if not payload.nome or not payload.buyer_phone or not payload.target_phone or not payload.first_message:
+        return JSONResponse({"success": False, "error": "Preencha todos os campos"}, status_code=400)
+
+    if len(payload.first_message) > 500:
+        return JSONResponse({"success": False, "error": "Mensagem muito longa (max 500)"}, status_code=400)
+
+    result = await fidelidade_service.quick_create_test(
+        payload.nome, payload.buyer_phone, payload.target_phone, payload.first_message
+    )
+    status = 200 if result["success"] else 400
     return JSONResponse(result, status_code=status)
 
 

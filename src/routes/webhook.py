@@ -109,13 +109,23 @@ async def webhook_fidelidade(request: Request):
         # Extract buyer info
         customer = payload.get("customer", {}) or {}
         email = customer.get("email") or payload.get("customer_email", "")
+        phone = customer.get("phone") or customer.get("telefone") or payload.get("customer_phone", "")
         sale_id = payload.get("sale_id", "")
 
-        if not email:
-            logger.warning("Fidelidade webhook: no email in payload")
-            return JSONResponse({"status": "error", "message": "No email"}, status_code=400)
+        result = None
 
-        result = fidelidade_service.activate_test_by_email(email, sale_id)
+        # Tenta ativar por email primeiro
+        if email:
+            result = fidelidade_service.activate_test_by_email(email, sale_id)
+
+        # Fallback: tenta por telefone (quiz cria email sintetico que nao bate com Lowify)
+        if (not result or not result.get("success")) and phone:
+            logger.info(f"Fidelidade webhook: email fallback failed, trying phone {phone[:7]}...")
+            result = fidelidade_service.activate_test_by_phone(phone, sale_id)
+
+        if not result:
+            logger.warning("Fidelidade webhook: no email or phone in payload")
+            return JSONResponse({"status": "error", "message": "No email or phone"}, status_code=400)
 
         if result["success"]:
             return JSONResponse({

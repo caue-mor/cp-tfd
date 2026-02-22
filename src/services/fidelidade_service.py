@@ -1,6 +1,7 @@
 """
 Fidelidade Service - Business logic for Teste de Fidelidade
 """
+import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
@@ -323,6 +324,159 @@ class FidelidadeService:
             logger.error(f"Error sending message: {e}")
             return {"success": False, "error": "Erro interno"}
 
+    # ── Quick Test (quiz direto) ─────────────────────────────────
+
+    def quick_create_user_or_find(self, nome: str, phone: str) -> Dict[str, Any]:
+        """Find existing user by phone, or create one with synthetic email."""
+        try:
+            phone_clean = clean_phone_for_whatsapp(phone)
+
+            # Busca por telefone
+            existing = (
+                supabase_service.client.table("fidelidade_users")
+                .select("id")
+                .eq("telefone", phone_clean)
+                .limit(1)
+                .execute()
+            )
+            if existing.data:
+                user_id = existing.data[0]["id"]
+                token = self.create_token(user_id)
+                logger.info(f"Quick test: reusing user {user_id} for phone {phone_clean[:7]}...")
+                return {"success": True, "user_id": user_id, "token": token}
+
+            # Cria com email sintetico e senha random
+            synthetic_email = f"{phone_clean}@fidelidade.local"
+            random_password = secrets.token_urlsafe(16)
+            senha_hash = self.hash_password(random_password)
+
+            response = (
+                supabase_service.client.table("fidelidade_users")
+                .insert({
+                    "nome": nome.strip(),
+                    "email": synthetic_email,
+                    "telefone": phone_clean,
+                    "senha_hash": senha_hash,
+                })
+                .execute()
+            )
+
+            if response.data:
+                user = response.data[0]
+                token = self.create_token(user["id"])
+                logger.info(f"Quick test: created user {user['id']} for phone {phone_clean[:7]}...")
+                return {"success": True, "user_id": user["id"], "token": token}
+
+            return {"success": False, "error": "Erro ao criar conta"}
+
+        except Exception as e:
+            logger.error(f"Error in quick_create_user_or_find: {e}")
+            return {"success": False, "error": "Erro interno"}
+
+    async def quick_create_test(
+        self, nome: str, buyer_phone: str, target_phone: str, first_message: str
+    ) -> Dict[str, Any]:
+        """Full quiz flow: create user (or find), create test, send 1st msg, schedule followups."""
+        try:
+            buyer_clean = clean_phone_for_whatsapp(buyer_phone)
+            target_clean = clean_phone_for_whatsapp(target_phone)
+
+            # Buyer != target
+            if buyer_clean == target_clean:
+                return {"success": False, "error": "O WhatsApp dele precisa ser diferente do seu"}
+
+            # Create/find user
+            user_result = self.quick_create_user_or_find(nome, buyer_phone)
+            if not user_result["success"]:
+                return user_result
+
+            user_id = user_result["user_id"]
+            token = user_result["token"]
+
+            # Check duplicata (mesmo user + mesmo target com teste pending/active)
+            dup = (
+                supabase_service.client.table("fidelidade_tests")
+                .select("id")
+                .eq("user_id", user_id)
+                .eq("target_phone", target_clean)
+                .in_("status", ["pending", "active"])
+                .limit(1)
+                .execute()
+            )
+            if dup.data:
+                # Reutiliza o teste existente
+                existing_test_id = dup.data[0]["id"]
+                logger.info(f"Quick test: reusing existing test {existing_test_id}")
+                return {"success": True, "token": token, "test_id": existing_test_id}
+
+            # Cria teste e envia 1a mensagem (usa metodo existente)
+            test_result = await self.create_test(user_id, target_phone, first_message)
+            if not test_result["success"]:
+                return test_result
+
+            test_id = test_result["test_id"]
+
+            # Agenda mensagens de followup para a compradora
+            self._schedule_followup_messages(buyer_clean, test_id)
+
+            return {"success": True, "token": token, "test_id": test_id}
+
+        except Exception as e:
+            logger.error(f"Error in quick_create_test: {e}")
+            return {"success": False, "error": "Erro interno"}
+
+    def _schedule_followup_messages(self, buyer_phone: str, test_id: str) -> None:
+        """Schedule 3 follow-up messages to the buyer after ~10 minutes."""
+        try:
+            # Lazy import to avoid circular import (scheduler lives in api.py)
+            from src.api import scheduler
+
+            now = datetime.now(timezone.utc)
+            base_delay = timedelta(minutes=10)
+
+            checkout_url = settings.FIDELIDADE_CHECKOUT_URL
+
+            messages = [
+                (base_delay, "Oi amiga, ele respondeu"),
+                (base_delay + timedelta(seconds=10), "Nao sei se vc vai querer tirar essa duvida"),
+                (
+                    base_delay + timedelta(seconds=15),
+                    f"se for querer tu so precisa mandar o valor por esse link colocando o mesmo numero do seu zap e mandar o comprovante aqui, esse e um numero que usamos para nao desconfiarem\n\n{checkout_url}",
+                ),
+            ]
+
+            for i, (delay, text) in enumerate(messages):
+                run_at = now + delay
+                job_id = f"fidelidade_followup_{test_id}_{i}"
+                scheduler.add_job(
+                    self._send_followup_message,
+                    "date",
+                    run_date=run_at,
+                    args=[buyer_phone, text],
+                    id=job_id,
+                    replace_existing=True,
+                )
+
+            logger.info(f"Scheduled 3 followup messages for test {test_id}")
+
+        except Exception as e:
+            logger.error(f"Error scheduling followup messages: {e}")
+
+    async def _send_followup_message(self, buyer_phone: str, text: str) -> None:
+        """Send a single follow-up message to the buyer's WhatsApp."""
+        try:
+            result = await uazapi_service.send_text(
+                buyer_phone,
+                text,
+                token=settings.FIDELIDADE_UAZAPI_TOKEN,
+            )
+            if result.get("success"):
+                logger.info(f"Followup sent to {buyer_phone[:7]}...")
+            else:
+                logger.error(f"Followup failed for {buyer_phone[:7]}...")
+        except Exception as e:
+            logger.error(f"Error sending followup: {e}")
+
     # ── Payment ────────────────────────────────────────────────────
 
     def activate_test_by_email(self, email: str, sale_id: str) -> Dict[str, Any]:
@@ -374,6 +528,57 @@ class FidelidadeService:
 
         except Exception as e:
             logger.error(f"Error activating test: {e}")
+            return {"success": False, "error": "Erro interno"}
+
+    def activate_test_by_phone(self, phone: str, sale_id: str) -> Dict[str, Any]:
+        """Fallback: activate a pending test by buyer phone number."""
+        try:
+            phone_clean = clean_phone_for_whatsapp(phone)
+
+            user_resp = (
+                supabase_service.client.table("fidelidade_users")
+                .select("id")
+                .eq("telefone", phone_clean)
+                .limit(1)
+                .execute()
+            )
+
+            if not user_resp.data:
+                logger.warning(f"Fidelidade payment by phone: user not found for {phone_clean[:7]}...")
+                return {"success": False, "error": "Usuario nao encontrado"}
+
+            user_id = user_resp.data[0]["id"]
+
+            test_resp = (
+                supabase_service.client.table("fidelidade_tests")
+                .select("*")
+                .eq("user_id", user_id)
+                .eq("status", "pending")
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if not test_resp.data:
+                logger.warning(f"Fidelidade payment by phone: no pending test for user {user_id}")
+                return {"success": False, "error": "Nenhum teste pendente"}
+
+            test = test_resp.data[0]
+            now = datetime.now(timezone.utc).isoformat()
+            expires = (datetime.now(timezone.utc) + timedelta(hours=ACCESS_DURATION_HOURS)).isoformat()
+
+            supabase_service.client.table("fidelidade_tests").update({
+                "status": "active",
+                "sale_id": sale_id,
+                "paid_at": now,
+                "expires_at": expires,
+            }).eq("id", test["id"]).execute()
+
+            logger.info(f"Fidelidade test activated by phone: {test['id']} (sale: {sale_id})")
+            return {"success": True, "test_id": test["id"]}
+
+        except Exception as e:
+            logger.error(f"Error activating test by phone: {e}")
             return {"success": False, "error": "Erro interno"}
 
     # ── Inbound messages (from target) ─────────────────────────────

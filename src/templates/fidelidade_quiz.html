@@ -16,21 +16,21 @@
         <!-- Step 1: Gancho emocional -->
         <div class="quiz-step active" id="step-1">
             <div class="quiz-content">
-                <div class="quiz-emoji">🔍</div>
-                <h1 class="quiz-title">Voce confia 100%<br>no seu parceiro?</h1>
-                <p class="quiz-subtitle">Responda com sinceridade. So voce vai ver.</p>
+                <div class="quiz-emoji">&#x1F50D;</div>
+                <h1 class="quiz-title">Voc&#234; confia 100%<br>no seu parceiro?</h1>
+                <p class="quiz-subtitle">Responda com sinceridade. S&#243; voc&#234; vai ver.</p>
                 <div class="quiz-options">
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">😌</span>
+                        <span class="option-icon">&#x1F60C;</span>
                         <span>Sim, totalmente</span>
                     </button>
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">🤔</span>
-                        <span>Tenho algumas duvidas</span>
+                        <span class="option-icon">&#x1F914;</span>
+                        <span>Tenho algumas d&#250;vidas</span>
                     </button>
                     <button class="quiz-option" onclick="nextStep(2)">
-                        <span class="option-icon">😰</span>
-                        <span>Ja desconfio de algo</span>
+                        <span class="option-icon">&#x1F630;</span>
+                        <span>J&#225; desconfio de algo</span>
                     </button>
                 </div>
             </div>
@@ -39,22 +39,44 @@
         <!-- Step 2: Intuicao + conexao emocional -->
         <div class="quiz-step" id="step-2">
             <div class="quiz-content">
-                <div class="quiz-emoji">💭</div>
-                <h1 class="quiz-title">A gente sabe quando<br>algo nao ta certo.</h1>
+                <div class="quiz-emoji">&#x1F4AD;</div>
+                <h1 class="quiz-title">A gente sabe quando<br>algo n&#227;o t&#225; certo.</h1>
                 <div class="quiz-intuition">
-                    Quando a desconfianca aparece, <strong>ela nao vai embora</strong>. Voce tenta ignorar, mas o pensamento volta. Sempre volta.<br><br>
-                    Voce olha o celular dele escondida e <em>corre o risco de ser pega</em>. Voce finge que ta tudo bem, mas por dentro o incomodo so cresce.<br><br>
-                    O pior de tudo nao e a traicao. O pior e <strong>nao saber se voce esta com a pessoa certa</strong>.<br><br>
-                    Sua intuicao pode estar gritando. Mas so da pra saber de verdade... <em>testando</em>.
+                    Quando a desconfian&#231;a aparece, <strong>ela n&#227;o vai embora</strong>. Voc&#234; tenta ignorar, mas o pensamento volta. Sempre volta.<br><br>
+                    Voc&#234; olha o celular dele escondida e <em>corre o risco de ser pega</em>. Voc&#234; finge que t&#225; tudo bem, mas por dentro o inc&#244;modo s&#243; cresce.<br><br>
+                    O pior de tudo n&#227;o &#233; a trai&#231;&#227;o. O pior &#233; <strong>n&#227;o saber se voc&#234; est&#225; com a pessoa certa</strong>.<br><br>
+                    Sua intui&#231;&#227;o pode estar gritando. Mas s&#243; d&#225; pra saber de verdade... <em>testando</em>.
                 </div>
-                <button class="quiz-btn" onclick="nextStep(3)">Quero tirar essa duvida →</button>
+                <button class="quiz-btn" onclick="nextStep(3)">Quero tirar essa d&#250;vida &#8594;</button>
             </div>
         </div>
 
-        <!-- Step 3: Apresentacao da Bia -->
+        <!-- Step 3: Coleta nome + WhatsApp da compradora -->
         <div class="quiz-step" id="step-3">
             <div class="quiz-content">
-                <p class="quiz-subtitle" style="margin-bottom: 20px;">Essa e a pessoa que vai conversar com ele:</p>
+                <div class="quiz-emoji">&#x1F4F1;</div>
+                <h1 class="quiz-title">Antes de come&#231;ar,<br>preciso de voc&#234;</h1>
+                <p class="quiz-subtitle">Para te avisar quando ele responder ao teste.</p>
+                <div class="quiz-form">
+                    <div class="form-group">
+                        <label for="buyer-name">Seu primeiro nome</label>
+                        <input type="text" id="buyer-name" placeholder="Ex: Amanda" autocomplete="given-name" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="buyer-phone">Seu WhatsApp</label>
+                        <input type="tel" id="buyer-phone" placeholder="(00) 00000-0000" autocomplete="tel" maxlength="15">
+                        <span class="form-hint">Vamos te avisar por aqui quando ele responder</span>
+                    </div>
+                    <div id="step3-error" class="error-msg" style="display:none;"></div>
+                    <button class="quiz-btn" onclick="validateStep3()" style="width:100%; margin-top:8px;">Continuar &#8594;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Apresentacao da Bia (personalizado com nome) -->
+        <div class="quiz-step" id="step-4">
+            <div class="quiz-content">
+                <p class="quiz-subtitle" style="margin-bottom: 20px;"><span id="bia-intro-name"></span>, essa &#233; quem vai conversar com ele:</p>
                 <div class="bia-card">
                     <div class="bia-photo-wrapper">
                         <img src="/static/images/bia-profile.jpg" alt="Beatriz Vasconcelos" class="bia-photo">
@@ -62,17 +84,17 @@
                     </div>
                     <div class="bia-info">
                         <h2 class="bia-name">Beatriz Vasconcelos</h2>
-                        <p class="bia-details">24 anos · Lojinha de roupas · Mora na sua regiao</p>
+                        <p class="bia-details">24 anos &#183; Lojinha de roupas &#183; Mora na sua regi&#227;o</p>
                     </div>
                 </div>
-                <p class="quiz-text">O WhatsApp dela e <strong>real</strong>. Foto, status, tudo preenchido. Ele nao vai suspeitar de nada.</p>
-                <p class="quiz-text-small">E o melhor: <strong>voce</strong> escreve tudo que ela manda.</p>
-                <button class="quiz-btn" onclick="nextStep(4)">Continuar →</button>
+                <p class="quiz-text">O WhatsApp dela &#233; <strong>real</strong>. Foto, status, tudo preenchido. Ele n&#227;o vai suspeitar de nada.</p>
+                <p class="quiz-text-small">E o melhor: <strong>voc&#234;</strong> escreve tudo que ela manda.</p>
+                <button class="quiz-btn" onclick="nextStep(5)">Continuar &#8594;</button>
             </div>
         </div>
 
-        <!-- Step 4: Como funciona -->
-        <div class="quiz-step" id="step-4">
+        <!-- Step 5: Como funciona -->
+        <div class="quiz-step" id="step-5">
             <div class="quiz-content">
                 <h1 class="quiz-title">Como funciona?</h1>
                 <p class="quiz-subtitle">3 passos simples:</p>
@@ -80,46 +102,58 @@
                     <div class="how-step">
                         <div class="how-step-number">1</div>
                         <div class="how-step-content">
-                            <h3>Voce escreve</h3>
-                            <p>A mensagem que a Bia vai mandar pra ele. Voce sabe o que dizer.</p>
+                            <h3>Voc&#234; escreve</h3>
+                            <p>A mensagem que a Bia vai mandar pra ele. Voc&#234; sabe o que dizer.</p>
                         </div>
                     </div>
                     <div class="how-step">
                         <div class="how-step-number">2</div>
                         <div class="how-step-content">
                             <h3>Ele responde</h3>
-                            <p>Voce ve tudo que ele manda, em tempo real. Cada palavra.</p>
+                            <p>Voc&#234; v&#234; tudo que ele manda, em tempo real. Cada palavra.</p>
                         </div>
                     </div>
                     <div class="how-step">
                         <div class="how-step-number">3</div>
                         <div class="how-step-content">
                             <h3>48h de acesso</h3>
-                            <p>Voce tem 48 horas pra conduzir a conversa como quiser.</p>
+                            <p>Voc&#234; tem 48 horas pra conduzir a conversa como quiser.</p>
                         </div>
                     </div>
                 </div>
-                <button class="quiz-btn" onclick="nextStep(5)">Quero testar →</button>
+                <button class="quiz-btn" onclick="nextStep(6)">Quero testar &#8594;</button>
             </div>
         </div>
 
-        <!-- Step 5: CTA final -->
-        <div class="quiz-step" id="step-5">
+        <!-- Step 6: WhatsApp do alvo + primeira mensagem → SUBMIT -->
+        <div class="quiz-step" id="step-6">
             <div class="quiz-content">
-                <div class="quiz-emoji">🎯</div>
-                <h1 class="quiz-title">Ninguem conhece ele<br>melhor que voce.</h1>
-                <p class="quiz-subtitle-highlight">Voce sabe exatamente o que dizer pra ele cair.</p>
-                <p class="quiz-subtitle">Melhor que qualquer outra pessoa testando. Porque voce conhece os pontos fracos dele.</p>
-                <div class="quiz-final-question">Pronta pra descobrir a verdade?</div>
-                <a href="/fidelidade" class="quiz-cta">Comecar agora — R$29,90</a>
-                <p class="quiz-guarantee">🔒 100% anonimo · Ele nunca vai saber</p>
+                <div class="quiz-emoji">&#x1F3AF;</div>
+                <h1 class="quiz-title">Hora de testar</h1>
+                <p class="quiz-subtitle">Escreva a primeira mensagem que a Bia vai mandar pra ele.</p>
+                <div class="quiz-form">
+                    <div class="form-group">
+                        <label for="target-phone">WhatsApp dele</label>
+                        <input type="tel" id="target-phone" placeholder="(00) 00000-0000" autocomplete="off" maxlength="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="first-message">Mensagem de abordagem</label>
+                        <textarea id="first-message" rows="4" maxlength="500" placeholder="Ex: Oi, tudo bem? Vi seu perfil e achei bonito..."></textarea>
+                        <span class="char-count"><span id="msg-chars">0</span>/500</span>
+                    </div>
+                    <div id="step6-error" class="error-msg" style="display:none;"></div>
+                    <button class="quiz-btn" id="btn-submit" onclick="submitQuiz()" style="width:100%; margin-top:8px;">Enviar agora &#8594;</button>
+                </div>
+                <p class="quiz-guarantee" style="margin-top:16px;">&#x1F512; 100% an&#244;nimo &#183; Ele nunca vai saber</p>
             </div>
         </div>
     </div>
 
     <script>
         let currentStep = 1;
-        const totalSteps = 5;
+        const totalSteps = 6;
+        let buyerName = '';
+        let buyerPhone = '';
 
         function updateProgress() {
             const pct = (currentStep / totalSteps) * 100;
@@ -134,12 +168,123 @@
             current.classList.remove('active');
             current.classList.add('exit');
 
-            setTimeout(() => {
+            setTimeout(function() {
                 current.classList.remove('exit');
                 next.classList.add('active');
                 currentStep = step;
                 updateProgress();
             }, 300);
+        }
+
+        // ── Phone mask ────────────────────────────────────────────
+        function applyPhoneMask(input) {
+            input.addEventListener('input', function() {
+                var v = this.value.replace(/\D/g, '');
+                if (v.length > 11) v = v.slice(0, 11);
+                if (v.length > 6) {
+                    this.value = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+                } else if (v.length > 2) {
+                    this.value = '(' + v.slice(0,2) + ') ' + v.slice(2);
+                } else if (v.length > 0) {
+                    this.value = '(' + v;
+                }
+            });
+        }
+
+        applyPhoneMask(document.getElementById('buyer-phone'));
+        applyPhoneMask(document.getElementById('target-phone'));
+
+        // ── Char count for textarea ───────────────────────────────
+        document.getElementById('first-message').addEventListener('input', function() {
+            document.getElementById('msg-chars').textContent = this.value.length;
+        });
+
+        // ── Step 3 validation ─────────────────────────────────────
+        function validateStep3() {
+            var name = document.getElementById('buyer-name').value.trim();
+            var phone = document.getElementById('buyer-phone').value.replace(/\D/g, '');
+            var errEl = document.getElementById('step3-error');
+
+            if (!name || name.length < 2) {
+                errEl.textContent = 'Digite seu nome';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (phone.length < 10 || phone.length > 11) {
+                errEl.textContent = 'WhatsApp inv\u00e1lido';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            errEl.style.display = 'none';
+            buyerName = name;
+            buyerPhone = phone;
+
+            // Personaliza step 4 com o nome
+            document.getElementById('bia-intro-name').textContent = buyerName;
+
+            nextStep(4);
+        }
+
+        // ── Step 6 submit ─────────────────────────────────────────
+        function submitQuiz() {
+            var targetPhone = document.getElementById('target-phone').value.replace(/\D/g, '');
+            var firstMessage = document.getElementById('first-message').value.trim();
+            var errEl = document.getElementById('step6-error');
+            var btn = document.getElementById('btn-submit');
+
+            if (targetPhone.length < 10 || targetPhone.length > 11) {
+                errEl.textContent = 'WhatsApp dele inv\u00e1lido';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!firstMessage || firstMessage.length < 5) {
+                errEl.textContent = 'Escreva uma mensagem de pelo menos 5 caracteres';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            // Verifica se buyer != target
+            if (buyerPhone === targetPhone) {
+                errEl.textContent = 'O WhatsApp dele precisa ser diferente do seu';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            errEl.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            fetch('/api/fidelidade/quick-test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nome: buyerName,
+                    buyer_phone: buyerPhone,
+                    target_phone: targetPhone,
+                    first_message: firstMessage,
+                }),
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    // Salva token no localStorage
+                    localStorage.setItem('fidelidade_token', data.token);
+                    // Redireciona pro chat borrado
+                    window.location.href = '/fidelidade/chat/' + data.test_id;
+                } else {
+                    errEl.textContent = data.error || 'Erro ao enviar. Tente novamente.';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Enviar agora \u2192';
+                }
+            })
+            .catch(function() {
+                errEl.textContent = 'Erro de conex\u00e3o. Tente novamente.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Enviar agora \u2192';
+            });
         }
 
         // Init
