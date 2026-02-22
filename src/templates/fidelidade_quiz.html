@@ -133,6 +133,40 @@
                 <p class="quiz-subtitle">Escreva a primeira mensagem que a Bia vai mandar pra ele.</p>
                 <div class="quiz-form">
                     <div class="form-group">
+                        <label for="target-state">Estado dele</label>
+                        <select id="target-state" onchange="onStateChange()">
+                            <option value="">Selecione o estado</option>
+                            <option value="11">S&#227;o Paulo (SP)</option>
+                            <option value="21">Rio de Janeiro (RJ)</option>
+                            <option value="31">Minas Gerais (MG)</option>
+                            <option value="71">Bahia (BA)</option>
+                            <option value="81">Pernambuco (PE)</option>
+                            <option value="85">Cear&#225; (CE)</option>
+                            <option value="61">Distrito Federal (DF)</option>
+                            <option value="62">Goi&#225;s (GO)</option>
+                            <option value="41">Paran&#225; (PR)</option>
+                            <option value="51">Rio Grande do Sul (RS)</option>
+                            <option value="47">Santa Catarina (SC)</option>
+                            <option value="91">Par&#225; (PA)</option>
+                            <option value="92">Amazonas (AM)</option>
+                            <option value="98">Maranh&#227;o (MA)</option>
+                            <option value="83">Para&#237;ba (PB)</option>
+                            <option value="84">Rio Grande do Norte (RN)</option>
+                            <option value="86">Piau&#237; (PI)</option>
+                            <option value="82">Alagoas (AL)</option>
+                            <option value="79">Sergipe (SE)</option>
+                            <option value="27">Esp&#237;rito Santo (ES)</option>
+                            <option value="67">Mato Grosso do Sul (MS)</option>
+                            <option value="65">Mato Grosso (MT)</option>
+                            <option value="63">Tocantins (TO)</option>
+                            <option value="68">Acre (AC)</option>
+                            <option value="96">Amap&#225; (AP)</option>
+                            <option value="69">Rond&#244;nia (RO)</option>
+                            <option value="95">Roraima (RR)</option>
+                        </select>
+                        <span class="form-hint">Use o mesmo DDD da regi&#227;o dele para n&#227;o gerar desconfian&#231;a</span>
+                    </div>
+                    <div class="form-group">
                         <label for="target-phone">WhatsApp dele</label>
                         <input type="tel" id="target-phone" placeholder="(00) 00000-0000" autocomplete="off" maxlength="15">
                     </div>
@@ -193,6 +227,19 @@
 
         applyPhoneMask(document.getElementById('buyer-phone'));
         applyPhoneMask(document.getElementById('target-phone'));
+
+        // ── State → DDD auto-fill ────────────────────────────────
+        function onStateChange() {
+            var ddd = document.getElementById('target-state').value;
+            if (!ddd) return;
+            var phoneInput = document.getElementById('target-phone');
+            // Pre-fill DDD only if phone is empty or has just a previous DDD
+            var current = phoneInput.value.replace(/\D/g, '');
+            if (current.length <= 2) {
+                phoneInput.value = '(' + ddd + ') ';
+                phoneInput.focus();
+            }
+        }
 
         // ── Char count for textarea ───────────────────────────────
         document.getElementById('first-message').addEventListener('input', function() {
