@@ -185,16 +185,57 @@
                         <span class="char-count"><span id="msg-chars">0</span>/500</span>
                     </div>
                     <div id="step6-error" class="error-msg" style="display:none;"></div>
-                    <button class="quiz-btn" id="btn-submit" onclick="submitQuiz()" style="width:100%; margin-top:8px;">Enviar agora &#8594;</button>
+                    <button class="quiz-btn" id="btn-step6" onclick="validateStep6()" style="width:100%; margin-top:8px;">Continuar &#8594;</button>
                 </div>
                 <p class="quiz-guarantee" style="margin-top:16px;">&#x1F512; 100% an&#244;nimo &#183; Ele nunca vai saber</p>
+            </div>
+        </div>
+
+        <!-- Step 7: Quebra de objecoes — acolhimento + print real -->
+        <div class="quiz-step" id="step-7">
+            <div class="quiz-content">
+                <div class="quiz-intuition">
+                    Amiga, eu sei que bate aquele medo.<br>
+                    Mas <strong>voc&#234; n&#227;o precisa se expor pra ningu&#233;m</strong>.<br><br>
+                    Aqui &#233; <em>100% an&#244;nimo</em>. S&#243; voc&#234; v&#234;. S&#243; voc&#234; decide.<br><br>
+                    Voc&#234; n&#227;o precisa mandar mensagem pra outra pessoa pedindo ajuda e se sentir julgada.
+                </div>
+                <div class="testimonial-print">
+                    <img src="/static/images/depoimento-pastor.png" alt="Depoimento real">
+                </div>
+                <div class="quiz-intuition" style="margin-top: 20px;">
+                    Ela teve coragem de pedir ajuda. E eu ajudei.<br>
+                    Mas aqui <strong>voc&#234; n&#227;o precisa pedir pra ningu&#233;m</strong> &#8212; voc&#234; mesma faz o teste.<br><br>
+                    <em>Voc&#234; vai ter controle total de tudo.</em>
+                </div>
+                <button class="quiz-btn" onclick="nextStep(8)">Continuar &#8594;</button>
+            </div>
+        </div>
+
+        <!-- Step 8: Manda antes, paga depois + CTA de envio -->
+        <div class="quiz-step" id="step-8">
+            <div class="quiz-content">
+                <div class="quiz-intuition">
+                    Amiga, talvez tenha gente que cobre mais barato. Eu n&#227;o sei.<br>
+                    Mas eu nunca gostei da ideia de me expor pra outra pessoa testar.<br><br>
+                    Aqui <strong>s&#243; voc&#234; vai ver</strong> e tirar suas conclus&#245;es.<br><br>
+                    S&#243; aviso que vamos ter um valor simb&#243;lico de diferen&#231;a das outras meninas.
+                </div>
+                <div class="send-first-highlight">
+                    Aqui n&#243;s mandamos a mensagem <strong>ANTES</strong> e voc&#234; s&#243; paga depois.
+                </div>
+                <div class="quiz-intuition" style="margin-top: 20px;">
+                    Depois de enviar, vai abrir a tela de conversa e voc&#234; vai poder ver tudo e trocar as mensagens.
+                </div>
+                <div id="step8-error" class="error-msg" style="display:none;"></div>
+                <button class="quiz-btn" id="btn-submit" onclick="submitQuiz()" style="width:100%; margin-top:8px;">Mandar sauda&#231;&#227;o agora &#8594;</button>
             </div>
         </div>
     </div>
 
     <script>
         let currentStep = 1;
-        const totalSteps = 6;
+        const totalSteps = 8;
         let buyerName = '';
         let buyerPhone = '';
 
@@ -282,11 +323,37 @@
             nextStep(4);
         }
 
-        // ── Step 6 submit ─────────────────────────────────────────
-        function submitQuiz() {
+        // ── Step 6 validation (save fields, go to step 7) ────────
+        function validateStep6() {
             var targetPhone = document.getElementById('target-phone').value.replace(/\D/g, '');
             var firstMessage = document.getElementById('first-message').value.trim();
             var errEl = document.getElementById('step6-error');
+
+            if (targetPhone.length < 10 || targetPhone.length > 11) {
+                errEl.textContent = 'WhatsApp dele inv\u00e1lido';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (!firstMessage || firstMessage.length < 5) {
+                errEl.textContent = 'Escreva uma mensagem de pelo menos 5 caracteres';
+                errEl.style.display = 'block';
+                return;
+            }
+            if (buyerPhone === targetPhone) {
+                errEl.textContent = 'O WhatsApp dele precisa ser diferente do seu';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            errEl.style.display = 'none';
+            nextStep(7);
+        }
+
+        // ── Step 8 submit ─────────────────────────────────────────
+        function submitQuiz() {
+            var targetPhone = document.getElementById('target-phone').value.replace(/\D/g, '');
+            var firstMessage = document.getElementById('first-message').value.trim();
+            var errEl = document.getElementById('step8-error');
             var btn = document.getElementById('btn-submit');
 
             if (targetPhone.length < 10 || targetPhone.length > 11) {

@@ -47,6 +47,10 @@ class QuickTestPayload(BaseModel):
     first_message: str
 
 
+class AccessByPhonePayload(BaseModel):
+    phone: str
+
+
 # ── Auth helper ────────────────────────────────────────────────
 
 def get_user_id_from_request(request: Request) -> Optional[str]:
@@ -82,6 +86,14 @@ async def fidelidade_painel_page(request: Request):
     return templates.TemplateResponse("fidelidade_painel.html", {
         "request": request,
         "checkout_url": settings.FIDELIDADE_CHECKOUT_URL,
+    })
+
+
+@router.get("/fidelidade/acessar", response_class=HTMLResponse)
+async def fidelidade_acessar_page(request: Request):
+    """Render access-by-phone page."""
+    return templates.TemplateResponse("fidelidade_acessar.html", {
+        "request": request,
     })
 
 
@@ -122,6 +134,17 @@ async def api_login(payload: LoginPayload):
 
     result = fidelidade_service.login_user(payload.email, payload.senha)
     status = 200 if result["success"] else 401
+    return JSONResponse(result, status_code=status)
+
+
+@router.post("/api/fidelidade/access-by-phone")
+async def api_access_by_phone(payload: AccessByPhonePayload):
+    """Look up user by phone, return JWT token + most recent test_id."""
+    if not payload.phone:
+        return JSONResponse({"success": False, "error": "Digite seu WhatsApp"}, status_code=400)
+
+    result = fidelidade_service.access_by_phone(payload.phone)
+    status = 200 if result["success"] else 404
     return JSONResponse(result, status_code=status)
 
 

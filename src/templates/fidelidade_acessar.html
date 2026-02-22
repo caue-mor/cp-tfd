@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acessar Conversa - Teste de Fidelidade</title>
+    <link rel="stylesheet" href="/static/css/fidelidade.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">&#x1F512;</div>
+                <h1>Acessar minha conversa</h1>
+                <p class="subtitle">Digite o WhatsApp que voc&#234; usou no teste</p>
+            </div>
+            <div class="form-group">
+                <label for="access-phone">Seu WhatsApp</label>
+                <input type="tel" id="access-phone" placeholder="(00) 00000-0000" autocomplete="tel" maxlength="15">
+            </div>
+            <div id="access-error" class="error-msg" style="display:none;"></div>
+            <button class="btn btn-primary" id="btn-access" onclick="accessByPhone()" style="margin-top:16px;">Acessar minha conversa &#8594;</button>
+        </div>
+    </div>
+
+    <script>
+        // Phone mask
+        var phoneInput = document.getElementById('access-phone');
+        phoneInput.addEventListener('input', function() {
+            var v = this.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) {
+                this.value = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+            } else if (v.length > 2) {
+                this.value = '(' + v.slice(0,2) + ') ' + v.slice(2);
+            } else if (v.length > 0) {
+                this.value = '(' + v;
+            }
+        });
+
+        // Enter key
+        phoneInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') accessByPhone();
+        });
+
+        function accessByPhone() {
+            var phone = document.getElementById('access-phone').value.replace(/\D/g, '');
+            var errEl = document.getElementById('access-error');
+            var btn = document.getElementById('btn-access');
+
+            if (phone.length < 10 || phone.length > 11) {
+                errEl.textContent = 'Digite um WhatsApp v\u00e1lido';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            errEl.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Buscando...';
+
+            fetch('/api/fidelidade/access-by-phone', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone }),
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    localStorage.setItem('fidelidade_token', data.token);
+                    window.location.href = '/fidelidade/chat/' + data.test_id;
+                } else {
+                    errEl.textContent = data.error || 'Nenhum teste encontrado para esse n\u00famero';
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Acessar minha conversa \u2192';
+                }
+            })
+            .catch(function() {
+                errEl.textContent = 'Erro de conex\u00e3o. Tente novamente.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Acessar minha conversa \u2192';
+            });
+        }
+    </script>
+</body>
+</html>

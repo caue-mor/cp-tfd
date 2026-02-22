@@ -136,6 +136,49 @@ class FidelidadeService:
             logger.error(f"Error getting user: {e}")
             return None
 
+    # ── Access by phone ──────────────────────────────────────────
+
+    def access_by_phone(self, phone: str) -> Dict[str, Any]:
+        """Find user by phone, generate token, return most recent test."""
+        try:
+            phone_clean = clean_phone_for_whatsapp(phone)
+
+            user_resp = (
+                supabase_service.client.table("fidelidade_users")
+                .select("id")
+                .eq("telefone", phone_clean)
+                .limit(1)
+                .execute()
+            )
+
+            if not user_resp.data:
+                return {"success": False, "error": "Nenhum teste encontrado para esse numero"}
+
+            user_id = user_resp.data[0]["id"]
+            token = self.create_token(user_id)
+
+            # Find most recent test (any status)
+            test_resp = (
+                supabase_service.client.table("fidelidade_tests")
+                .select("id")
+                .eq("user_id", user_id)
+                .order("created_at", desc=True)
+                .limit(1)
+                .execute()
+            )
+
+            if not test_resp.data:
+                return {"success": False, "error": "Nenhum teste encontrado para esse numero"}
+
+            test_id = test_resp.data[0]["id"]
+
+            logger.info(f"Access by phone: user {user_id}, test {test_id}")
+            return {"success": True, "token": token, "test_id": test_id}
+
+        except Exception as e:
+            logger.error(f"Error in access_by_phone: {e}")
+            return {"success": False, "error": "Erro interno"}
+
     # ── Tests ──────────────────────────────────────────────────────
 
     async def create_test(self, user_id: str, target_phone: str, first_message: str) -> Dict[str, Any]:

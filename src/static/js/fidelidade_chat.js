@@ -7,7 +7,7 @@
     const token = localStorage.getItem('fidelidade_token');
 
     if (!token) {
-        window.location.href = '/fidelidade';
+        window.location.href = '/fidelidade/acessar';
         return;
     }
 
@@ -41,7 +41,7 @@
 
             if (res.status === 401) {
                 localStorage.removeItem('fidelidade_token');
-                window.location.href = '/fidelidade';
+                window.location.href = '/fidelidade/acessar';
                 return;
             }
 
