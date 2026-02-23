@@ -189,5 +189,5 @@
     // ── Start polling ─────────────────────────────────────────
 
     fetchMessages();
-    setInterval(fetchMessages, 3000);
+    setInterval(fetchMessages, 60000);
 })();
