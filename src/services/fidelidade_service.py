@@ -271,10 +271,26 @@ class FidelidadeService:
         """Check if test is paid and not expired."""
         if test.get("status") != "active":
             return False
-        if not test.get("expires_at"):
-            return False
-        expires = datetime.fromisoformat(test["expires_at"].replace("Z", "+00:00"))
-        return datetime.now(timezone.utc) < expires
+
+        expires_at = test.get("expires_at")
+        if not expires_at:
+            # Active but no expiration set — treat as active (customer paid)
+            logger.warning(f"Test {test.get('id')} is active but has no expires_at")
+            return True
+
+        try:
+            if isinstance(expires_at, str):
+                expires = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+            elif isinstance(expires_at, datetime):
+                expires = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=timezone.utc)
+            else:
+                logger.error(f"Unknown expires_at type: {type(expires_at)} for test {test.get('id')}")
+                return True  # Benefit of the doubt — customer paid
+
+            return datetime.now(timezone.utc) < expires
+        except Exception as e:
+            logger.error(f"Error parsing expires_at for test {test.get('id')}: {e}")
+            return True  # Can't check expiration — assume active, customer paid
 
     # ── Messages ───────────────────────────────────────────────────
 
@@ -282,13 +298,17 @@ class FidelidadeService:
         """Get messages for a test. Blur if not paid/expired."""
         test = self.get_test(test_id)
         if not test:
+            logger.warning(f"get_messages: test {test_id} not found")
             return {"success": False, "error": "Teste nao encontrado"}
 
         if test["user_id"] != user_id:
+            logger.warning(f"get_messages: user mismatch test={test_id} test_user={test['user_id']} req_user={user_id}")
             return {"success": False, "error": "Acesso negado"}
 
         # Check expiration
         active = self.is_test_active(test)
+        logger.info(f"get_messages: test={test_id} status={test.get('status')} expires_at={test.get('expires_at')} active={active}")
+
         if test["status"] == "active" and not active:
             self._expire_test(test_id)
             test["status"] = "expired"
