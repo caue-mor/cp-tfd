@@ -105,6 +105,8 @@
             } else if (testStatus === 'expired') {
                 statusEl.textContent = 'Expirado';
                 timerEl.style.display = 'none';
+            } else if (testStatus === 'active') {
+                statusEl.textContent = 'Processando pagamento...';
             }
         } else {
             overlayEl.style.display = 'none';
