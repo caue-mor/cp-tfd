@@ -307,7 +307,6 @@ class FidelidadeService:
 
         # Check expiration
         active = self.is_test_active(test)
-        logger.info(f"get_messages: test={test_id} status={test.get('status')} expires_at={test.get('expires_at')} active={active}")
 
         if test["status"] == "active" and not active:
             self._expire_test(test_id)
